@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.genImageFromText = void 0;
-const createImage_1 = require("../modules/genimage/createImage");
 const nostr_tools_1 = require("nostr-tools");
 require("websocket-polyfill");
 const helpers_1 = require("../modules/helpers");
+const createText2Image_1 = require("../modules/getimage/createText2Image");
 function genImageFromText(event65005) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -33,7 +33,15 @@ function genImageFromText(event65005) {
             });
             if (prompt === '')
                 return false;
-            const content = yield (0, createImage_1.createImage)(prompt, (sizes[0] && parseInt(sizes[0], 10) < 1024) ? parseInt(sizes[0], 10) : 512, (sizes[1] && parseInt(sizes[1], 10) < 1024) ? parseInt(sizes[1], 10) : 768, true);
+            const model = 'icbinp-final';
+            const options = {
+                prompt,
+                model,
+                'width': (sizes[0] && parseInt(sizes[0], 10) < 1024) ? parseInt(sizes[0], 10) : 512,
+                'height': (sizes[1] && parseInt(sizes[1], 10) < 1024) ? parseInt(sizes[1], 10) : 512
+            };
+            const content = yield (0, createText2Image_1.createGetImage)(options);
+            // const content = await createImage(prompt, (sizes[0] && parseInt(sizes[0], 10) < 1024)?parseInt(sizes[0], 10):512, (sizes[1] && parseInt(sizes[1], 10) < 1024)?parseInt(sizes[1], 10):768, true);
             if (content === null)
                 return false;
             const tags = [];

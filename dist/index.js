@@ -48,7 +48,7 @@ function run() {
         const relays = [process.env.RELAY,];
         const pool = new nostr_tools_1.SimplePool();
         // Subscribing to a pool of relays
-        const sub = pool.sub(relays, [{ limit: 0, kinds: [65005] }]);
+        const sub = pool.sub(relays, [{ limit: 1, kinds: [65005] }]);
         // Removing all listeners from the 'event' event
         sub.off('event', (event) => __awaiter(this, void 0, void 0, function* () { return; }));
         // Adding a listener to the 'event' event
@@ -81,5 +81,5 @@ function runTest() {
         console.log(content);
     });
 }
-runTest().catch(console.log);
+run().catch(console.log);
 //# sourceMappingURL=index.js.map

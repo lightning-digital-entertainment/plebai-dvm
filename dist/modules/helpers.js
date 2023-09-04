@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.relayIds = void 0;
+exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
@@ -101,6 +101,13 @@ function generateRandom10DigitNumber() {
     return randomNumber;
 }
 exports.generateRandom10DigitNumber = generateRandom10DigitNumber;
+function generateRandom9DigitNumber() {
+    const min = 100000000; // 9-digit number starting with 1
+    const max = 999999999; // 9-digit number ending with 9
+    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomNumber;
+}
+exports.generateRandom9DigitNumber = generateRandom9DigitNumber;
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -162,7 +169,7 @@ function publishRelay(relayUrl, event) {
     });
 }
 exports.publishRelay = publishRelay;
-function getImageUrl(imageData, id, outputFormat) {
+function getImageUrl(id, outputFormat) {
     return __awaiter(this, void 0, void 0, function* () {
         const form = new form_data_1.default();
         form.append('asset', (0, fs_1.createReadStream)(process.env.UPLOAD_PATH + id + `.` + outputFormat));

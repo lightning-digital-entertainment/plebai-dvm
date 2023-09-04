@@ -160,7 +160,7 @@ export async function publishRelay(relayUrl:string, event: NostrEvent) {
 
 }
 
-export async function getImageUrl(imageData: string, id: string, outputFormat:string): Promise<string> {
+export async function getImageUrl(id: string, outputFormat:string): Promise<string> {
 
 
   const form = new FormData();

@@ -14,6 +14,8 @@ export async function createGetImage (options: Partial<TextToImageRequest>): Pro
         const client = stabledifusion();
         const id = uuidv4()
 
+        const outputFormat = options.output_format?options.output_format:"jpeg";
+
         const { image } = await client.txt2img({
             prompt: options.prompt ? options.prompt : 'Photo of a classic red mustang car parked in las vegas strip at night',
             negative_prompt: options.negative_prompt?options.negative_prompt:'(NSFW, breasts, Chinese, deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck ',
@@ -27,9 +29,17 @@ export async function createGetImage (options: Partial<TextToImageRequest>): Pro
             output_format: options.output_format?options.output_format:"jpeg"
         })
 
-        writeFileSync( process.env.UPLOAD_PATH + id + `.` + options.output_format?options.output_format:"jpeg", image, 'base64')
+       
+        if (image) {
+            writeFileSync( process.env.UPLOAD_PATH + id + `.` + outputFormat, image, 'base64')
+            return await getImageUrl( id, outputFormat)
+        } else {
 
-        if (image) return await getImageUrl('data:image/png;base64,' +image, id, options.output_format?options.output_format:"jpeg")
+            return null;
+        }
+        
+        
+        
 
     } catch (error) {
 

@@ -2,6 +2,8 @@ import { createImage } from '../modules/genimage/createImage';
 import { type Event as NostrEvent, getEventHash, getPublicKey, getSignature } from 'nostr-tools';
 import 'websocket-polyfill';
 import {publishToRelays} from '../modules/helpers'
+import { TextToImageRequest } from '../modules/getimage/text-to-image';
+import { createGetImage } from '../modules/getimage/createText2Image';
 
 
 
@@ -26,7 +28,20 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
 
         if (prompt === '')return false;
 
-        const content = await createImage(prompt, (sizes[0] && parseInt(sizes[0], 10) < 1024)?parseInt(sizes[0], 10):512, (sizes[1] && parseInt(sizes[1], 10) < 1024)?parseInt(sizes[1], 10):768, true);
+        const model='icbinp-final'
+
+        const options:Partial<TextToImageRequest> =  {
+
+            prompt,
+            model,
+            'width':(sizes[0] && parseInt(sizes[0]) < 1024)?parseInt(sizes[0]):512,
+            'height':(sizes[1] && parseInt(sizes[1]) < 1024)?parseInt(sizes[1]):512
+
+        }
+
+        const content = await createGetImage(options);
+
+        // const content = await createImage(prompt, (sizes[0] && parseInt(sizes[0], 10) < 1024)?parseInt(sizes[0], 10):512, (sizes[1] && parseInt(sizes[1], 10) < 1024)?parseInt(sizes[1], 10):768, true);
 
         if (content === null) return false;
 

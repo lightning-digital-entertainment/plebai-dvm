@@ -47,7 +47,7 @@ export async function createImage (prompt: string, width?: number, height?:numbe
           writeFileSync( process.env.UPLOAD_PATH + id + `.png`, images[i], 'base64')
         )
 
-        return await getImageUrl('data:image/png;base64,' +images[0], id, 'png')
+        return await getImageUrl(id, 'png')
 
 
       } catch (err) {

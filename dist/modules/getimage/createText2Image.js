@@ -22,27 +22,29 @@ function createGetImage(options) {
         try {
             const client = (0, stable_diffusion_1.default)();
             const id = (0, uuid_1.v4)();
+            const outputFormat = options.output_format ? options.output_format : "jpeg";
+            console.log(outputFormat);
             const { image } = yield client.txt2img({
                 prompt: options.prompt ? options.prompt : 'Photo of a classic red mustang car parked in las vegas strip at night',
-                negative_prompt: '(NSFW, breasts, Chinese, deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck ',
+                negative_prompt: options.negative_prompt ? options.negative_prompt : '(NSFW, breasts, Chinese, deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck ',
                 width: options.width ? options.width : 512,
                 height: options.height ? options.height : 768,
-                steps: 20,
-                guidance: 10,
-                seed: 42,
+                steps: options.steps ? options.steps : 20,
+                guidance: options.guidance ? options.guidance : 10,
+                seed: options.seed ? options.seed : (0, helpers_1.generateRandom9DigitNumber)(),
                 model: options.model ? options.model : "realistic-vision-v3",
-                scheduler: "euler_a",
-                output_format: "jpeg"
+                scheduler: options.scheduler ? options.scheduler : "euler_a",
+                output_format: options.output_format ? options.output_format : "jpeg"
             });
-            (0, fs_1.writeFileSync)(process.env.UPLOAD_PATH + id + `.jpeg`, image, 'base64');
+            console.log('write file: ', process.env.UPLOAD_PATH + id + `.` + 'jpeg');
+            (0, fs_1.writeFileSync)(process.env.UPLOAD_PATH + id + `.` + "jpeg", image, 'base64');
             if (image)
-                return yield (0, helpers_1.getImageUrl)('data:image/png;base64,' + image, id, 'jpeg');
+                return yield (0, helpers_1.getImageUrl)(id, options.output_format ? options.output_format : "jpeg");
         }
         catch (error) {
             console.log(error);
             return null;
         }
-        return null;
     });
 }
 exports.createGetImage = createGetImage;

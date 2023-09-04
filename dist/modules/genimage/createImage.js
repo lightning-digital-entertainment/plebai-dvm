@@ -45,7 +45,7 @@ function createImage(prompt, width, height, hiresImage) {
                 hires,
             });
             images.forEach((image, i) => (0, fs_1.writeFileSync)(process.env.UPLOAD_PATH + id + `.png`, images[i], 'base64'));
-            return yield (0, helpers_1.getImageUrl)('data:image/png;base64,' + images[0], id, 'png');
+            return yield (0, helpers_1.getImageUrl)(id, 'png');
         }
         catch (err) {
             console.error(err);
