@@ -34,8 +34,8 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
 
             prompt,
             model,
-            'width':(sizes[0] && parseInt(sizes[0]) < 1024)?parseInt(sizes[0]):512,
-            'height':(sizes[1] && parseInt(sizes[1]) < 1024)?parseInt(sizes[1]):512
+            'width':(sizes[0] && parseInt(sizes[0],10) < 1024)?parseInt(sizes[0],10):512,
+            'height':(sizes[1] && parseInt(sizes[1],10) < 1024)?parseInt(sizes[1],10):512
 
         }
 
