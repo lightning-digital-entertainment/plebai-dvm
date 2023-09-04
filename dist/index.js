@@ -36,25 +36,31 @@ const nostr_tools_1 = require("nostr-tools");
 require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
 const text2image_1 = require("./GenerateTasks/text2image");
+// Loading environment variables from the .env file
+dotenv.config();
+// Defining an asynchronous function run()
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        dotenv.config();
+        // Logging the RELAY environment variable
         console.log('Starting to subscribe with', process.env.RELAY);
+        // Creating an array of relays using the RELAY environment variable
         const relays = [process.env.RELAY,];
         const pool = new nostr_tools_1.SimplePool();
-        const sub = pool.sub(relays, [
-            {
-                limit: 0,
-                kinds: [65005],
-            }
-        ]);
+        // Subscribing to a pool of relays
+        const sub = pool.sub(relays, [{ limit: 0, kinds: [65005] }]);
+        // Removing all listeners from the 'event' event
         sub.off('event', (event) => __awaiter(this, void 0, void 0, function* () { return; }));
+        // Adding a listener to the 'event' event
         sub.on('event', (event) => __awaiter(this, void 0, void 0, function* () {
+            // Logging the event
             console.log(event);
+            // Generating an image from the event's text
             if (yield (0, text2image_1.genImageFromText)(event)) {
+                // Logging the success message when the image generation is successful
                 console.log('Image generation success for event ID: ', event.id);
             }
             else {
+                // Logging the error message when the image generation fails
                 console.log('Image generation failed for event ID: ', event.id);
             }
         }));
