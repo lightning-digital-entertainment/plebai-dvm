@@ -31,10 +31,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.relayIds = void 0;
+exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
+const fs_1 = require("fs");
+const form_data_1 = __importDefault(require("form-data"));
+const axios_1 = __importDefault(require("axios"));
 exports.relayIds = [
     'wss://relay.current.fyi',
     'wss://nostr1.current.fyi',
@@ -156,4 +162,27 @@ function publishRelay(relayUrl, event) {
     });
 }
 exports.publishRelay = publishRelay;
+function getImageUrl(imageData, id, outputFormat) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const form = new form_data_1.default();
+        form.append('asset', (0, fs_1.createReadStream)(process.env.UPLOAD_PATH + id + `.` + outputFormat));
+        form.append("name", 'current/plebai/genimg/' + id + `.` + outputFormat);
+        form.append("type", "image");
+        const config = {
+            method: 'post',
+            url: process.env.UPLOAD_URL,
+            headers: Object.assign({ 'Authorization': 'Bearer ' + process.env.UPLOAD_AUTH, 'Content-Type': 'multipart/form-data' }, form.getHeaders()),
+            data: form
+        };
+        const resp = yield axios_1.default.request(config);
+        (0, fs_1.unlink)(process.env.UPLOAD_PATH + id + `.` + outputFormat, (err) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log('tmp file deleted');
+        });
+        return resp.data.data;
+    });
+}
+exports.getImageUrl = getImageUrl;
 //# sourceMappingURL=helpers.js.map

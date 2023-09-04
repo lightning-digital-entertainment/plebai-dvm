@@ -1,11 +1,10 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { createReadStream, writeFileSync, unlink } from 'fs'
+import { writeFileSync} from 'fs'
 import sdwebui from "./sdwebui"
 import { SamplingMethod } from "./types"
-import { generateRandom10DigitNumber } from '../helpers';
-import FormData from 'form-data';
-import axios from "axios";
+import { generateRandom10DigitNumber, getImageUrl } from '../helpers';
+
 
 
 export async function createImage (prompt: string, width?: number, height?:number, hiresImage?:boolean ): Promise<string> {
@@ -48,7 +47,7 @@ export async function createImage (prompt: string, width?: number, height?:numbe
           writeFileSync( process.env.UPLOAD_PATH + id + `.png`, images[i], 'base64')
         )
 
-        return await getImageUrl('data:image/png;base64,' +images[0], id)
+        return await getImageUrl('data:image/png;base64,' +images[0], id, 'png')
 
 
       } catch (err) {
@@ -64,38 +63,7 @@ export async function createImage (prompt: string, width?: number, height?:numbe
 
 }
 
-async function getImageUrl(imageData: string, id: string): Promise<string> {
 
-
-    const form = new FormData();
-    form.append('asset', createReadStream(process.env.UPLOAD_PATH + id + `.png`));
-    form.append("name", 'current/plebai/genimg/' + id + `.png`);
-    form.append("type", "image");
-
-    const config = {
-        method: 'post',
-        url: process.env.UPLOAD_URL,
-        headers: {
-          'Authorization': 'Bearer ' + process.env.UPLOAD_AUTH,
-          'Content-Type': 'multipart/form-data',
-          ...form.getHeaders()
-        },
-        data: form
-    };
-
-    const resp = await axios.request(config);
-
-
-    unlink(process.env.UPLOAD_PATH + id + `.png`, (err) => {
-      if (err) {
-          console.log(err);
-      }
-    console.log('tmp file deleted');
-    })
-
-    return resp.data.data;
-
-}
 
 
 

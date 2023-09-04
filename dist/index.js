@@ -36,6 +36,7 @@ const nostr_tools_1 = require("nostr-tools");
 require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
 const text2image_1 = require("./GenerateTasks/text2image");
+const createText2Image_1 = require("./modules/getimage/createText2Image");
 // Loading environment variables from the .env file
 dotenv.config();
 // Defining an asynchronous function run()
@@ -66,5 +67,19 @@ function run() {
         }));
     });
 }
-run().catch(console.log);
+function runTest() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
+        const model = 'icbinp-final';
+        const options = {
+            prompt,
+            model,
+            'width': 512,
+            'height': 512
+        };
+        const content = yield (0, createText2Image_1.createGetImage)(options);
+        console.log(content);
+    });
+}
+runTest().catch(console.log);
 //# sourceMappingURL=index.js.map

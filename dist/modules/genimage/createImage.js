@@ -18,8 +18,6 @@ const fs_1 = require("fs");
 const sdwebui_1 = __importDefault(require("./sdwebui"));
 const types_1 = require("./types");
 const helpers_1 = require("../helpers");
-const form_data_1 = __importDefault(require("form-data"));
-const axios_1 = __importDefault(require("axios"));
 function createImage(prompt, width, height, hiresImage) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -47,7 +45,7 @@ function createImage(prompt, width, height, hiresImage) {
                 hires,
             });
             images.forEach((image, i) => (0, fs_1.writeFileSync)(process.env.UPLOAD_PATH + id + `.png`, images[i], 'base64'));
-            return yield getImageUrl('data:image/png;base64,' + images[0], id);
+            return yield (0, helpers_1.getImageUrl)('data:image/png;base64,' + images[0], id, 'png');
         }
         catch (err) {
             console.error(err);
@@ -56,26 +54,4 @@ function createImage(prompt, width, height, hiresImage) {
     });
 }
 exports.createImage = createImage;
-function getImageUrl(imageData, id) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const form = new form_data_1.default();
-        form.append('asset', (0, fs_1.createReadStream)(process.env.UPLOAD_PATH + id + `.png`));
-        form.append("name", 'current/plebai/genimg/' + id + `.png`);
-        form.append("type", "image");
-        const config = {
-            method: 'post',
-            url: process.env.UPLOAD_URL,
-            headers: Object.assign({ 'Authorization': 'Bearer ' + process.env.UPLOAD_AUTH, 'Content-Type': 'multipart/form-data' }, form.getHeaders()),
-            data: form
-        };
-        const resp = yield axios_1.default.request(config);
-        (0, fs_1.unlink)(process.env.UPLOAD_PATH + id + `.png`, (err) => {
-            if (err) {
-                console.log(err);
-            }
-            console.log('tmp file deleted');
-        });
-        return resp.data.data;
-    });
-}
 //# sourceMappingURL=createImage.js.map
