@@ -1,9 +1,8 @@
-import { createImage } from '../modules/genimage/createImage';
 import { type Event as NostrEvent, getEventHash, getPublicKey, getSignature } from 'nostr-tools';
 import 'websocket-polyfill';
 import {publishToRelays} from '../modules/helpers'
-import { TextToImageRequest } from '../modules/getimage/text-to-image';
-import { createGetImage } from '../modules/getimage/createText2Image';
+import { createGetImageWithPrompt } from '../modules/getimage/createText2Image';
+
 
 
 
@@ -26,29 +25,23 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
 
         });
 
-        if (prompt === '')return false;
-
-        const model='icbinp-final'
-
-        const options:Partial<TextToImageRequest> =  {
-
-            prompt,
-            model,
-            'width':(sizes[0] && parseInt(sizes[0],10) < 1024)?parseInt(sizes[0],10):512,
-            'height':(sizes[1] && parseInt(sizes[1],10) < 1024)?parseInt(sizes[1],10):512
-
-        }
-
-        const content = await createGetImage(options);
-
-        // const content = await createImage(prompt, (sizes[0] && parseInt(sizes[0], 10) < 1024)?parseInt(sizes[0], 10):512, (sizes[1] && parseInt(sizes[1], 10) < 1024)?parseInt(sizes[1], 10):768, true);
-
-        if (content === null) return false;
-
+        let content=''
         const tags:string[][] = [];
         tags.push(['e', event65005.id]);
         tags.push(['p', event65005.pubkey]);
-        tags.push(["status", "success"]);
+
+        if (prompt !== ''){
+            content = await createGetImageWithPrompt(prompt);
+
+        }
+
+        if (content === null || content === '') {
+            content = 'Error when generating image. ';
+            tags.push(["status", "error"]);
+        } else {
+            tags.push(["status", "success"]);
+        }
+
         tags.push(["request", JSON.stringify(event65005)]);
 
         const event65001: NostrEvent = {

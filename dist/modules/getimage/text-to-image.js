@@ -38,7 +38,7 @@ const txt2img = (options, apiUrl = process.env.GETIMG_URL) => __awaiter(void 0, 
         },
     });
     if (result.status !== 200) {
-        throw new Error(result.statusText);
+        console.log(result);
     }
     const data = yield result.json();
     if (!(data === null || data === void 0 ? void 0 : data.image)) {

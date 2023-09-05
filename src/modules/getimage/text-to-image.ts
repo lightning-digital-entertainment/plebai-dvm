@@ -58,7 +58,7 @@ export const txt2img = async (
     })
 
     if (result.status !== 200) {
-      throw new Error(result.statusText)
+      console.log(result);
     }
 
     const data: any = await result.json()

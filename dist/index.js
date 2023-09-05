@@ -48,7 +48,7 @@ function run() {
         const relays = [process.env.RELAY,];
         const pool = new nostr_tools_1.SimplePool();
         // Subscribing to a pool of relays
-        const sub = pool.sub(relays, [{ limit: 1, kinds: [65005] }]);
+        const sub = pool.sub(relays, [{ limit: 0, kinds: [65005] }]);
         // Removing all listeners from the 'event' event
         sub.off('event', (event) => __awaiter(this, void 0, void 0, function* () { return; }));
         // Adding a listener to the 'event' event
@@ -69,15 +69,10 @@ function run() {
 }
 function runTest() {
     return __awaiter(this, void 0, void 0, function* () {
-        const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
-        const model = 'icbinp-final';
-        const options = {
-            prompt,
-            model,
-            'width': 512,
-            'height': 512
-        };
-        const content = yield (0, createText2Image_1.createGetImage)(options);
+        // const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
+        // const prompt = ' portrait photo of a trendy beautiful girl standing next to a high rise window'
+        const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
+        const content = yield (0, createText2Image_1.createGetImageWithPrompt)(prompt);
         console.log(content);
     });
 }

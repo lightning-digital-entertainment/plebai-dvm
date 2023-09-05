@@ -3,11 +3,13 @@ import {SimplePool} from 'nostr-tools';
 import 'websocket-polyfill';
 import * as dotenv from 'dotenv';
 import { genImageFromText } from './GenerateTasks/text2image';
-import { createGetImage } from './modules/getimage/createText2Image';
-import { TextToImageRequest } from './modules/getimage/text-to-image';
+import { createGetImage, createGetImageWithPrompt } from './modules/getimage/createText2Image';
+
 
 // Loading environment variables from the .env file
 dotenv.config();
+
+
 
 
 // Defining an asynchronous function run()
@@ -47,20 +49,12 @@ async function run() {
 
 async function runTest() {
 
-  const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
+  // const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
 
-  const model='icbinp-final'
+  // const prompt = ' portrait photo of a trendy beautiful girl standing next to a high rise window'
 
-  const options:Partial<TextToImageRequest> =  {
-
-      prompt,
-      model,
-      'width':512,
-      'height':512
-
-  }
-
-  const content = await createGetImage(options);
+  const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
+  const content = await createGetImageWithPrompt(prompt);
 
   console.log(content);
 

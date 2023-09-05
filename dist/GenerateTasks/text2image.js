@@ -31,23 +31,20 @@ function genImageFromText(event65005) {
                 if (tag[0] === 'relays')
                     relays = tag[1].split(',');
             });
-            if (prompt === '')
-                return false;
-            const model = 'icbinp-final';
-            const options = {
-                prompt,
-                model,
-                'width': (sizes[0] && parseInt(sizes[0], 10) < 1024) ? parseInt(sizes[0], 10) : 512,
-                'height': (sizes[1] && parseInt(sizes[1], 10) < 1024) ? parseInt(sizes[1], 10) : 512
-            };
-            const content = yield (0, createText2Image_1.createGetImage)(options);
-            // const content = await createImage(prompt, (sizes[0] && parseInt(sizes[0], 10) < 1024)?parseInt(sizes[0], 10):512, (sizes[1] && parseInt(sizes[1], 10) < 1024)?parseInt(sizes[1], 10):768, true);
-            if (content === null)
-                return false;
+            let content = '';
             const tags = [];
             tags.push(['e', event65005.id]);
             tags.push(['p', event65005.pubkey]);
-            tags.push(["status", "success"]);
+            if (prompt !== '') {
+                content = yield (0, createText2Image_1.createGetImageWithPrompt)(prompt);
+            }
+            if (content === null || content === '') {
+                content = 'Error when generating image. ';
+                tags.push(["status", "error"]);
+            }
+            else {
+                tags.push(["status", "success"]);
+            }
             tags.push(["request", JSON.stringify(event65005)]);
             const event65001 = {
                 kind: 65001,

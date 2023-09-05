@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.relayIds = void 0;
+exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
@@ -62,6 +62,39 @@ exports.relayIds = [
     'wss://no.str.cr',
     'wss://nostr-relay.nokotaro.com',
     'wss://relay.nostr.wirednet.jp'
+];
+exports.ModelIds = [
+    "stable-diffusion-xl-v1-0",
+    "dark-sushi-mix-v2-25",
+    "absolute-reality-v1-6",
+    "synthwave-punk-v2",
+    "arcane-diffusion",
+    "moonfilm-reality-v3",
+    "moonfilm-utopia-v3",
+    "moonfilm-film-grain-v1",
+    "openjourney-v4",
+    "realistic-vision-v3",
+    "icbinp-final",
+    "icbinp-relapse",
+    "icbinp-afterburn",
+    "xsarchitectural-interior-design",
+    "mo-di-diffusion",
+    "anashel-rpg",
+    "realistic-vision-v1-3-inpainting",
+    "eimis-anime-diffusion-v1-0",
+    "something-v2-2",
+    "icbinp",
+    "analog-diffusion",
+    "neverending-dream",
+    "van-gogh-diffusion",
+    "openjourney-v1-0",
+    "realistic-vision-v1-3",
+    "stable-diffusion-v1-5-inpainting",
+    "gfpgan-v1-3",
+    "real-esrgan-4x",
+    "instruct-pix2pix",
+    "stable-diffusion-v2-1",
+    "stable-diffusion-v1-5"
 ];
 exports.relayId = [process.env.RELAY];
 function sendHeaders(stream) {
@@ -192,4 +225,53 @@ function getImageUrl(id, outputFormat) {
     });
 }
 exports.getImageUrl = getImageUrl;
+function levenshtein(a, b) {
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            }
+            else {
+                matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+// Function to find the string with the strongest match
+function findBestMatch(target, list) {
+    let minDistance = Infinity;
+    let bestMatch = "";
+    for (const str of list) {
+        const distance = levenshtein(target, str);
+        if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = str;
+        }
+    }
+    return bestMatch;
+}
+exports.findBestMatch = findBestMatch;
+function closestMultipleOf256(num) {
+    // Round to the nearest integer in case of floating point numbers.
+    num = Math.round(num);
+    const remainder = num % 256;
+    if (remainder === 0) {
+        return num; // The number is already a multiple of 256.
+    }
+    if (remainder <= 128) {
+        return num - remainder; // Round down (or up for negative numbers)
+    }
+    else {
+        return num + (256 - remainder); // Round up (or down for negative numbers)
+    }
+}
+exports.closestMultipleOf256 = closestMultipleOf256;
 //# sourceMappingURL=helpers.js.map
