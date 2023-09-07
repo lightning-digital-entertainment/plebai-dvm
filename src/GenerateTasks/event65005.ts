@@ -33,13 +33,15 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         tags.push(['e', event65005.id]);
         tags.push(['p', event65005.pubkey]);
 
-        if (prompt !== '' && !sizeOver1024(imageurl)){
+        const overSize = await sizeOver1024(imageurl);
+
+        if (prompt !== '' && !overSize){
             content = await createGetImageWithPrompt(prompt, imageurl);
 
         }
 
         if (content === null || content === '') {
-            if (sizeOver1024(imageurl)) {
+            if (overSize) {
                 content = 'Error: Input image size cannnot be over 1024 pixels. ';
             } else {
                 content = 'Error: Error when generating image. ';
