@@ -1,5 +1,6 @@
 import { generateRandom9DigitNumber, getImageUrl } from "../helpers";
-import stabledifusion from "./stable-diffusion";
+import sdxlText2Image from "./sdxlText2Image";
+import sdxlImage2Image from "./sdxlImage2Image";
 import { writeFileSync} from 'fs'
 import { v4 as uuidv4 } from 'uuid';
 import { TextToImageRequest } from "./text-to-image";
@@ -7,8 +8,11 @@ import { StructuredOutputParser } from "langchain/output_parsers";
 import { OpenAI} from 'langchain/llms/openai';
 import { PromptTemplate } from 'langchain/prompts'
 import { ModelIds, closestMultipleOf256, findBestMatch } from '../helpers';
+import { ImageToImageRequest } from "./image-to-image";
+import axios, { AxiosResponse } from 'axios';
 
-export async function createGetImageWithPrompt(prompt:string): Promise<string> {
+
+export async function createGetImageWithPrompt(prompt:string, imageUrl:string): Promise<string> {
 
     const parser = StructuredOutputParser.fromNamesAndDescriptions({
         prompt: "output prompt enhanced for image generation",
@@ -23,7 +27,7 @@ export async function createGetImageWithPrompt(prompt:string): Promise<string> {
 
     const llmprompt = new PromptTemplate({
         template:
-          "use the prompt given by the user for image generation and enhance the prompt for midjourney.  compare and match the prompt to pick one model suitable for this prompt... Also choose what mode potrait, lanscape or square will be suitable for the prompt and pick the height and width from the example. output prompt, model, height and width. Here's the example for model names and size. Height and width cannot exceed more than 1024. use this example to select the correct model, height and width " + exampleData + " \n{format_instructions}\n{iprompt}",
+        "use the prompt given by the user for image generation and enhance the prompt for midjourney.  compare and match the prompt to pick one model suitable for this prompt... Also choose what mode potrait, lanscape or square will be suitable for the prompt and pick the height and width from the example. output prompt, model, height and width. default height=768 and default width=1024. default mode should be potrait mode. Here's the example for model names and size. Height and width cannot exceed more than 1024. use this example to select the correct model, height and width " + exampleData + " \n{format_instructions}\n{iprompt}",
         inputVariables: ["iprompt"],
         partialVariables: { format_instructions: formatInstructions },
       });
@@ -39,26 +43,59 @@ export async function createGetImageWithPrompt(prompt:string): Promise<string> {
     console.log(input);
     console.log(response);
 
+    if (imageUrl !== null) {
 
-    try {
+        try {
 
-      const options:Partial<TextToImageRequest>  = await parser.parse(response);
-      if (options && options.model) options.model = findBestMatch(options.model, ModelIds);
-      if (options && options.height) options.height = closestMultipleOf256(options.height);
-      if (options && options.width) options.width= closestMultipleOf256(options.width);
-      console.log(options);
-      const content = await createGetImage(options);
-      console.log(content);
+            const imageString = await getBase64ImageFromURL(imageUrl);
+            const options:Partial<ImageToImageRequest>  = await parser.parse(response);
+            if (options && options.model) options.model = findBestMatch(options.model, ModelIds);
+            if (options && options.height) options.height = closestMultipleOf256(options.height);
+            if (options && options.width) options.width= closestMultipleOf256(options.width);
+            if (imageString) options.image = imageString;
+            options.prompt = prompt;
+            console.log(options);
+            const content = await createGetImage2Image(options);
+            console.log(content);
 
-      return content;
+            return content;
 
 
-    } catch (error) {
+        } catch (error) {
+            console.log(error)
 
-      console.log(error)
-      return null;
+        }
+
+
+
+
+    } else {
+
+        try {
+
+            const options:Partial<TextToImageRequest>  = await parser.parse(response);
+            if (options && options.model) options.model = findBestMatch(options.model, ModelIds);
+            if (options && options.height) options.height = closestMultipleOf256(options.height);
+            if (options && options.width) options.width= closestMultipleOf256(options.width);
+            console.log(options);
+            const content = await createGetImage(options);
+            console.log(content);
+
+            return content;
+
+
+          } catch (error) {
+
+            console.log(error)
+            return null;
+
+          }
+
 
     }
+
+
+
 
 
 
@@ -72,7 +109,7 @@ export async function createGetImage (options: Partial<TextToImageRequest>): Pro
 
     try {
 
-        const client = stabledifusion();
+        const client = sdxlText2Image();
         const id = uuidv4()
         const outputFormat = options.output_format?options.output_format:"jpeg";
 
@@ -109,4 +146,59 @@ export async function createGetImage (options: Partial<TextToImageRequest>): Pro
     }
 
 
+}
+
+export async function createGetImage2Image (options: Partial<ImageToImageRequest>): Promise<string> {
+
+  try {
+
+      const client = sdxlImage2Image();
+      const id = uuidv4()
+      const outputFormat = options.output_format?options.output_format:"jpeg";
+
+      const { image } = await client.img2img({
+          prompt: options.prompt ? options.prompt : 'Photo of a classic red mustang car parked in las vegas strip at night',
+          image: options.image?options.image:'',
+          negative_prompt: options.negative_prompt?options.negative_prompt:'(NSFW, breasts, Chinese, deformed, distorted, disfigured:1.3), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers:1.4), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, (deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck ',
+          width: options.width ? options.width : 512,
+          height: options.height ? options.height : 768,
+          steps: options.steps?options.steps:20,
+          guidance: options.guidance?options.guidance:10,
+          seed: options.seed?options.seed:generateRandom9DigitNumber(),
+          model: options.model?options.model: "realistic-vision-v3",
+          scheduler: options.scheduler?options.scheduler:"dpmsolver++",
+          output_format: options.output_format?options.output_format:"jpeg"
+      })
+
+
+      if (image) {
+          writeFileSync( process.env.UPLOAD_PATH + id + `.` + outputFormat, image, 'base64')
+          return await getImageUrl( id, outputFormat)
+      } else {
+
+          return null;
+      }
+
+
+
+
+  } catch (error) {
+
+      console.log(error);
+      return null;
+
+  }
+
+
+}
+
+async function getBase64ImageFromURL(url: string): Promise<string> {
+    const response = await axios.get<ArrayBuffer>(url, {
+        responseType: 'arraybuffer'
+    });
+
+    return Buffer.from(response.data).toString('base64');
+
+    // const base64Image: string = Buffer.from(response.data).toString('base64');
+    // return `data:${response.headers['content-type']};base64,${base64Image}`;
 }

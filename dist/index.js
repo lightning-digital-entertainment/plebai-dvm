@@ -35,8 +35,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nostr_tools_1 = require("nostr-tools");
 require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
-const text2image_1 = require("./GenerateTasks/text2image");
-const createText2Image_1 = require("./modules/getimage/createText2Image");
+const event65005_1 = require("./GenerateTasks/event65005");
+const createImage_1 = require("./modules/getimage/createImage");
 // Loading environment variables from the .env file
 dotenv.config();
 // Defining an asynchronous function run()
@@ -56,7 +56,7 @@ function run() {
             // Logging the event
             console.log(event);
             // Generating an image from the event's text
-            if (yield (0, text2image_1.genImageFromText)(event)) {
+            if (yield (0, event65005_1.genImageFromText)(event)) {
                 // Logging the success message when the image generation is successful
                 console.log('Image generation success for event ID: ', event.id);
             }
@@ -70,11 +70,13 @@ function run() {
 function runTest() {
     return __awaiter(this, void 0, void 0, function* () {
         // const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
-        // const prompt = ' portrait photo of a trendy beautiful girl standing next to a high rise window'
-        const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
-        const content = yield (0, createText2Image_1.createGetImageWithPrompt)(prompt);
+        const prompt = ' change the hair color to pink';
+        // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
+        const imageUrl = 'https://i.current.fyi/current/app/resizedn.png';
+        const content = yield (0, createImage_1.createGetImageWithPrompt)(prompt, imageUrl);
+        // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/d6cf2189-b3a3-4c1c-856e-a2989a2ec1cf.png', null);
         console.log(content);
     });
 }
-run().catch(console.log);
+runTest().catch(console.log);
 //# sourceMappingURL=index.js.map

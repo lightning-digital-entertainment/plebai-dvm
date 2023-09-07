@@ -60,7 +60,6 @@ exports.relayIds = [
     'wss://nostr.oxtr.dev',
     'wss://relay.nostr.bg',
     'wss://no.str.cr',
-    'wss://nostr-relay.nokotaro.com',
     'wss://relay.nostr.wirednet.jp'
 ];
 exports.ModelIds = [
@@ -194,7 +193,7 @@ function publishRelay(relayUrl, event) {
         try {
             const pubrelay = (0, nostr_tools_1.relayInit)(relayUrl);
             yield pubrelay.connect();
-            const pub = pubrelay.publish(event);
+            yield pubrelay.publish(event);
         }
         catch (e) {
             console.log('in catch with error: ', e);

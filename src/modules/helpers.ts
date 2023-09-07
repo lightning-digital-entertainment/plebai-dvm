@@ -26,7 +26,6 @@ export const relayIds = [
   'wss://nostr.oxtr.dev',
   'wss://relay.nostr.bg',
   'wss://no.str.cr',
-  'wss://nostr-relay.nokotaro.com',
   'wss://relay.nostr.wirednet.jp'
 
 ];
@@ -183,7 +182,7 @@ export async function publishRelay(relayUrl:string, event: NostrEvent) {
 
     const pubrelay = relayInit(relayUrl);
     await pubrelay.connect();
-    const pub = pubrelay.publish(event);
+    await pubrelay.publish(event);
 
 
   } catch (e) {

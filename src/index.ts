@@ -2,8 +2,9 @@
 import {SimplePool} from 'nostr-tools';
 import 'websocket-polyfill';
 import * as dotenv from 'dotenv';
-import { genImageFromText } from './GenerateTasks/text2image';
-import { createGetImage, createGetImageWithPrompt } from './modules/getimage/createText2Image';
+import { genImageFromText } from './GenerateTasks/event65005';
+import { createGetImage, createGetImageWithPrompt } from './modules/getimage/createImage';
+import { createNIP94Event } from './modules/nip94event/createEvent';
 
 
 // Loading environment variables from the .env file
@@ -51,13 +52,16 @@ async function runTest() {
 
   // const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
 
-  // const prompt = ' portrait photo of a trendy beautiful girl standing next to a high rise window'
+  const prompt = ' change the hair color to pink'
 
-  const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
-  const content = await createGetImageWithPrompt(prompt);
+  // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
+  const imageUrl = 'https://i.current.fyi/current/app/resizedn.png'
+  const content = await createGetImageWithPrompt(prompt, imageUrl);
+
+  // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/d6cf2189-b3a3-4c1c-856e-a2989a2ec1cf.png', null);
 
   console.log(content);
 
 }
 
-run().catch(console.log);
+runTest().catch(console.log);

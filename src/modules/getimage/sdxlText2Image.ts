@@ -1,6 +1,5 @@
 import { TextToImageRequest, TextToImageResponse, txt2img } from "./text-to-image"
 
-
 type Props = {
     apiUrl?: string
   }
@@ -10,7 +9,7 @@ type Props = {
     txt2img: (options: TextToImageRequest) => Promise<TextToImageResponse>
   }
 
-  const stabledifusion = (props?: Props): Client => {
+  const sdxlText2Image = (props?: Props): Client => {
     const apiUrl = props?.apiUrl || process.env.GETIMG_URL
 
     return {
@@ -19,5 +18,5 @@ type Props = {
     }
   }
 
-  export default stabledifusion
+  export default sdxlText2Image
 

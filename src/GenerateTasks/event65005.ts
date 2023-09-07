@@ -1,7 +1,8 @@
-import { type Event as NostrEvent, getEventHash, getPublicKey, getSignature } from 'nostr-tools';
+import { type Event as NostrEvent, getEventHash, getPublicKey, getSignature} from 'nostr-tools';
 import 'websocket-polyfill';
-import {publishToRelays} from '../modules/helpers'
-import { createGetImageWithPrompt } from '../modules/getimage/createText2Image';
+import {publishToRelays, relayId} from '../modules/helpers'
+import { createGetImageWithPrompt } from '../modules/getimage/createImage';
+import { createNIP94Event } from '../modules/nip94event/createEvent';
 
 
 
@@ -16,12 +17,14 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         let  sizes:string[]=[];
         let output = ''
         let relays:string[] =[];
+        let imageurl:string = null;
 
         event65005.tags.forEach(function(tag) {
             if (tag[0] === 'i' && tag[2] === 'text')  prompt = (tag[1]);
+            if (tag[0] === 'i' && tag[2] === 'url')  imageurl= (tag[1]);
             if (tag[0] === 'param' && tag[1] === 'size')  sizes = tag[2].split('x');
             if (tag[0] === 'output') output = tag[1];
-            if (tag[0] === 'relays')  relays = tag[1].split(',');
+            if (tag[0] === 'relays')  relays = tag.filter(relayId => relayId.startsWith('wss://'));
 
         });
 
@@ -31,7 +34,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         tags.push(['p', event65005.pubkey]);
 
         if (prompt !== ''){
-            content = await createGetImageWithPrompt(prompt);
+            content = await createGetImageWithPrompt(prompt, imageurl);
 
         }
 
@@ -59,6 +62,9 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         console.log('65001 Event: ', event65001);
 
         if (relays.length > 0) publishToRelays(relays, event65001);
+
+        if (content !== null || content !== '')  createNIP94Event(content, event65005.pubkey);
+
         return true;
 
     } catch (error) {
