@@ -286,8 +286,7 @@ export function closestMultipleOf256(num: number): number {
 export function isValidURL(str: string): boolean {
   try {
       const url = new URL(str);
-
-      if (url.protocol === 'https') return true;
+      if (url.protocol === 'https:') return true;
   } catch (_) {
       return false;
   }
