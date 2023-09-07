@@ -78,5 +78,5 @@ function runTest() {
         console.log(content);
     });
 }
-runTest().catch(console.log);
+run().catch(console.log);
 //# sourceMappingURL=index.js.map

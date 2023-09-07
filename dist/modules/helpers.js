@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
+exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
@@ -273,4 +273,16 @@ function closestMultipleOf256(num) {
     }
 }
 exports.closestMultipleOf256 = closestMultipleOf256;
+function isValidURL(str) {
+    try {
+        const url = new URL(str);
+        if (url.protocol === 'https')
+            return true;
+    }
+    catch (_) {
+        return false;
+    }
+    return false;
+}
+exports.isValidURL = isValidURL;
 //# sourceMappingURL=helpers.js.map

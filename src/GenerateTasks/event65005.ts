@@ -1,8 +1,8 @@
 import { type Event as NostrEvent, getEventHash, getPublicKey, getSignature} from 'nostr-tools';
 import 'websocket-polyfill';
-import {publishToRelays, relayId} from '../modules/helpers'
+import {isValidURL, publishToRelays, relayId} from '../modules/helpers'
 import { createGetImageWithPrompt } from '../modules/getimage/createImage';
-import { createNIP94Event } from '../modules/nip94event/createEvent';
+import { createNIP94Event, sizeOver1024 } from '../modules/nip94event/createEvent';
 
 
 
@@ -33,13 +33,18 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         tags.push(['e', event65005.id]);
         tags.push(['p', event65005.pubkey]);
 
-        if (prompt !== ''){
+        if (prompt !== '' && !sizeOver1024(imageurl)){
             content = await createGetImageWithPrompt(prompt, imageurl);
 
         }
 
         if (content === null || content === '') {
-            content = 'Error when generating image. ';
+            if (sizeOver1024(imageurl)) {
+                content = 'Error: Input image size cannnot be over 1024 pixels. ';
+            } else {
+                content = 'Error: Error when generating image. ';
+            }
+
             tags.push(["status", "error"]);
         } else {
             tags.push(["status", "success"]);
@@ -63,7 +68,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
 
         if (relays.length > 0) publishToRelays(relays, event65001);
 
-        if (content !== null || content !== '')  createNIP94Event(content, event65005.pubkey);
+        if (isValidURL(content))  await createNIP94Event(content, event65005.pubkey);
 
         return true;
 

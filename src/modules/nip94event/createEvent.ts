@@ -70,6 +70,31 @@ async function getFileAndImageDetailsFromUrl(url: string): Promise<{ size: numbe
     }
 }
 
+export async function sizeOver1024(url:string): Promise<boolean> {
+
+
+        try {
+
+            if (url === null) return false;
+
+            const response = await axios.get(url, { responseType: 'arraybuffer' });
+            const dimensions = sizeOf(Buffer.from(response.data));
+
+            if (dimensions.width > 1025) return true;
+            if (dimensions.height > 1025) return true;
+
+
+
+        } catch (error) {
+
+            console.log(error)
+
+        }
+
+        return false;
+
+}
+
 async function computeSHA256ForURL(url: string): Promise<string> {
     return new Promise(async (resolve, reject) => {
         const hash = crypto.createHash('sha256');
