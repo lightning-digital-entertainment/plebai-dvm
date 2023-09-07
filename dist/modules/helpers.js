@@ -276,7 +276,7 @@ exports.closestMultipleOf256 = closestMultipleOf256;
 function isValidURL(str) {
     try {
         const url = new URL(str);
-        if (url.protocol === 'https')
+        if (url.protocol === 'https:')
             return true;
     }
     catch (_) {

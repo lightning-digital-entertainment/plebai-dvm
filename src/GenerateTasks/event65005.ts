@@ -36,6 +36,15 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         const overSize = await sizeOver1024(imageurl);
 
         if (prompt !== '' && !overSize){
+
+            console.log('Starting to process...')
+            const tags2:string[][] = tags;
+            tags2.push(['status', 'processing']);
+            tags2.push(['amount', "50000"])
+            const event65000 = await createEvent(65000,tags2, '');
+            if (relays.length > 0) publishToRelays(relays, event65000);
+            console.log('Sent event 65000')
+
             content = await createGetImageWithPrompt(prompt, imageurl);
 
         }
@@ -54,19 +63,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
 
         tags.push(["request", JSON.stringify(event65005)]);
 
-        const event65001: NostrEvent = {
-            kind: 65001,
-            pubkey: getPublicKey(process.env.SK1),
-            created_at: Math.floor(Date.now() / 1000),
-            tags,
-            content
-        } as any;
-
-
-        event65001.id = getEventHash(event65001);
-        event65001.sig = getSignature(event65001, process.env.SK1);
-
-        console.log('65001 Event: ', event65001);
+        const event65001 = await createEvent(65001, tags, content);
 
         if (relays.length > 0) publishToRelays(relays, event65001);
 
@@ -82,6 +79,26 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
     }
 
 
+
+}
+
+async function createEvent(eventId: number, tags:string[][], content:string):Promise<NostrEvent>{
+
+    const event: NostrEvent = {
+        kind: eventId,
+        pubkey: getPublicKey(process.env.SK1),
+        created_at: Math.floor(Date.now() / 1000),
+        tags,
+        content
+    } as any;
+
+
+    event.id = getEventHash(event);
+    event.sig = getSignature(event, process.env.SK1);
+
+    console.log(eventId + ' Event: ', event);
+
+    return event;
 
 }
 

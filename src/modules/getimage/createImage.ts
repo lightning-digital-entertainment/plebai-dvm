@@ -54,6 +54,16 @@ export async function createGetImageWithPrompt(prompt:string, imageUrl:string): 
             if (options && options.width) options.width= closestMultipleOf256(options.width);
             if (imageString) options.image = imageString;
             options.prompt = prompt;
+            if (prompt.includes( 'portrait')) {
+                options.height=1024
+                options.width=768
+        
+              }
+              if (prompt.includes('landscape')) {
+                options.height=768
+                options.width=1024
+        
+              }
             console.log(options);
             const content = await createGetImage2Image(options);
             console.log(content);
@@ -78,6 +88,16 @@ export async function createGetImageWithPrompt(prompt:string, imageUrl:string): 
             if (options && options.height) options.height = closestMultipleOf256(options.height);
             if (options && options.width) options.width= closestMultipleOf256(options.width);
             console.log(options);
+            if (prompt.includes( 'portrait')) {
+                options.height=1024
+                options.width=768
+        
+              }
+              if (prompt.includes('landscape')) {
+                options.height=768
+                options.width=1024
+        
+              }
             const content = await createGetImage(options);
             console.log(content);
 
