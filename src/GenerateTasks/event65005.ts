@@ -38,9 +38,12 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         if (prompt !== '' && !overSize){
 
             console.log('Starting to process...')
-            const tags2:string[][] = tags;
+            const tags2:string[][] = [];
+            tags2.push(['e', event65005.id]);
+            tags2.push(['p', event65005.pubkey]);
             tags2.push(['status', 'processing']);
             tags2.push(['amount', "50000"])
+            
             const event65000 = await createEvent(65000,tags2, '');
             if (relays.length > 0) publishToRelays(relays, event65000);
             console.log('Sent event 65000')
