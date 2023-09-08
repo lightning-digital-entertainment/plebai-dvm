@@ -6,6 +6,7 @@ import { type Event as NostrEvent, relayInit } from 'nostr-tools';
 import { createReadStream, writeFileSync, unlink } from 'fs'
 import FormData from 'form-data';
 import axios from "axios";
+import { IDocument } from "@getzep/zep-js";
 
 export const relayIds = [
   'wss://relay.current.fyi',
@@ -294,6 +295,15 @@ export function isValidURL(str: string): boolean {
   return false;
 }
 
+export function getResults(results: IDocument[]): string {
+
+  let data=''
+  for (const result of results) {
+     data = data + " " + result.content;
+  }
+
+  return data;
+}
 
 
 

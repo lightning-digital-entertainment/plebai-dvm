@@ -36,6 +36,7 @@ const nostr_tools_1 = require("nostr-tools");
 require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
 const event65005_1 = require("./GenerateTasks/event65005");
+const createImage_1 = require("./modules/getimage/createImage");
 // Loading environment variables from the .env file
 dotenv.config();
 // Defining an asynchronous function run()
@@ -73,13 +74,10 @@ function runTest() {
         // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
         const imageUrl = 'https://i.current.fyi/current/app/resizedn.png';
         // const content = await createGetImageWithPrompt(prompt, imageUrl);
-        // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/fd2881b8-4fbb-403f-adee-683b5ecd7eea.png', '5bfdb1fb7aa7d11ce074cf43cd0335e916a7224104a07350fba58ca1ab1c5c08');
-        // console.log(content);
-        console.log(matchesKeyword(' in portrait', 'portrait'));
+        // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/d6cf2189-b3a3-4c1c-856e-a2989a2ec1cf.png', null);
+        const content = yield (0, createImage_1.createPromptUsingChatGPT)('1girl closeup animation. ');
+        console.log(content);
     });
 }
 runTest().catch(console.log);
-function matchesKeyword(word, keyword) {
-    return word.includes(keyword);
-}
 //# sourceMappingURL=index.js.map
