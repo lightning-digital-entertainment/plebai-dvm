@@ -27,16 +27,17 @@ export async function createGetImageWithPrompt(prompt:string, imageUrl:string): 
 
     const response = await createPromptUsingChatGPT(prompt);
 
-    if (imageUrl !== null) {
+    const imageString = await getBase64ImageFromURL(imageUrl);
+
+    if (imageString !== null) {
 
         try {
-
-            const imageString = await getBase64ImageFromURL(imageUrl);
+            console.log('inside image url', imageUrl)
             const options:Partial<ImageToImageRequest>  = await parser.parse(response);
             if (options && options.model) options.model = findBestMatch(options.model, ModelIds);
             if (options && options.height) options.height = closestMultipleOf256(options.height);
             if (options && options.width) options.width= closestMultipleOf256(options.width);
-            if (imageString) options.image = imageString;
+            options.image = imageString;
             options.prompt = prompt;
             if (prompt.includes( 'portrait')) {
                 options.height=1024
@@ -48,7 +49,7 @@ export async function createGetImageWithPrompt(prompt:string, imageUrl:string): 
                 options.width=1024
 
               }
-            console.log(options);
+            console.log('Final Input: ', options);
             const content = await createGetImage2Image(options);
             console.log(content);
 
@@ -197,28 +198,43 @@ export async function createGetImage2Image (options: Partial<ImageToImageRequest
 }
 
 async function getBase64ImageFromURL(url: string): Promise<string> {
-    const response = await axios.get<ArrayBuffer>(url, {
-        responseType: 'arraybuffer'
-    });
+    try {
 
-    const imageBuffer = Buffer.from(response.data);
-    const image = sharp(imageBuffer);
+        if (url === null) return null;
 
-    const metadata = await image.metadata();
-
-    if (metadata.width > 1024 || metadata.height > 1024) {
-        image.resize({
-            width: 1024,
-            height: 1024,
-            fit: sharp.fit.inside,
-            withoutEnlargement: true
+        const response = await axios.get<ArrayBuffer>(url, {
+            responseType: 'arraybuffer'
         });
 
-        const buffer = await image.toBuffer();
-        return buffer.toString('base64');
+        const imageBuffer = Buffer.from(response.data);
+
+        console.log('image buffer')
+        const image = sharp(imageBuffer);
+
+        const metadata = await image.metadata();
+
+        if (metadata.width > 1024 || metadata.height > 1024) {
+            console.log('inside iamge resize')
+            image.resize({
+                width: 1024,
+                height: 1024,
+                fit: sharp.fit.inside,
+                withoutEnlargement: true
+            });
+
+            const buffer = await image.toBuffer();
+            return buffer.toString('base64');
+        }
+
+        return Buffer.from(response.data).toString('base64');
+
+    } catch (error) {
+
+        console.log('Error at getBase64ImageFromURL',error)
+        return null;
+
     }
 
-    return Buffer.from(response.data).toString('base64');
 }
 
 export async function createPromptUsingChatGPT (prompt: string): Promise<string> {

@@ -73,11 +73,10 @@ function runTest() {
         const prompt = ' change the hair color to pink';
         // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
         const imageUrl = 'https://i.current.fyi/current/app/resizedn.png';
-        // const content = await createGetImageWithPrompt(prompt, imageUrl);
+        const content = yield (0, createImage_1.createGetImageWithPrompt)(prompt, imageUrl);
         // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/d6cf2189-b3a3-4c1c-856e-a2989a2ec1cf.png', null);
-        const content = yield (0, createImage_1.createPromptUsingChatGPT)('1girl closeup animation. ');
         console.log(content);
     });
 }
-runTest().catch(console.log);
+run().catch(console.log);
 //# sourceMappingURL=index.js.map

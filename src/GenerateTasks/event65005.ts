@@ -33,7 +33,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         tags.push(['e', event65005.id]);
         tags.push(['p', event65005.pubkey]);
 
-        
+
 
         if (prompt !== '' ){
 
@@ -55,7 +55,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         if (content === null || content === '') {
 
             content = 'Error: Error when generating image. ';
-            
+
 
             tags.push(["status", "error"]);
         } else {
