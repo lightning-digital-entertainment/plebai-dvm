@@ -33,9 +33,9 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         tags.push(['e', event65005.id]);
         tags.push(['p', event65005.pubkey]);
 
-        const overSize = await sizeOver1024(imageurl);
+        
 
-        if (prompt !== '' && !overSize){
+        if (prompt !== '' ){
 
             console.log('Starting to process...')
             const tags2:string[][] = [];
@@ -43,7 +43,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
             tags2.push(['p', event65005.pubkey]);
             tags2.push(['status', 'processing']);
             tags2.push(['amount', "50000"])
-            
+
             const event65000 = await createEvent(65000,tags2, '');
             if (relays.length > 0) publishToRelays(relays, event65000);
             console.log('Sent event 65000')
@@ -53,11 +53,9 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
         }
 
         if (content === null || content === '') {
-            if (overSize) {
-                content = 'Error: Input image size cannnot be over 1024 pixels. ';
-            } else {
-                content = 'Error: Error when generating image. ';
-            }
+
+            content = 'Error: Error when generating image. ';
+            
 
             tags.push(["status", "error"]);
         } else {

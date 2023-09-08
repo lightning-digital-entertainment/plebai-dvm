@@ -13,6 +13,7 @@ import axios from 'axios';
 import { ZepClient } from "@getzep/zep-js";
 import { loadQAStuffChain } from "langchain/chains";
 import { Document } from "langchain/document";
+import sharp from "sharp";
 
 const parser = StructuredOutputParser.fromNamesAndDescriptions({
     prompt: "output prompt enhanced for image generation",
@@ -200,10 +201,24 @@ async function getBase64ImageFromURL(url: string): Promise<string> {
         responseType: 'arraybuffer'
     });
 
-    return Buffer.from(response.data).toString('base64');
+    const imageBuffer = Buffer.from(response.data);
+    const image = sharp(imageBuffer);
 
-    // const base64Image: string = Buffer.from(response.data).toString('base64');
-    // return `data:${response.headers['content-type']};base64,${base64Image}`;
+    const metadata = await image.metadata();
+
+    if (metadata.width > 1024 || metadata.height > 1024) {
+        image.resize({
+            width: 1024,
+            height: 1024,
+            fit: sharp.fit.inside,
+            withoutEnlargement: true
+        });
+
+        const buffer = await image.toBuffer();
+        return buffer.toString('base64');
+    }
+
+    return Buffer.from(response.data).toString('base64');
 }
 
 export async function createPromptUsingChatGPT (prompt: string): Promise<string> {
