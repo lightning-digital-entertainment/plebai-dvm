@@ -35,12 +35,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
+exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
 const form_data_1 = __importDefault(require("form-data"));
 const axios_1 = __importDefault(require("axios"));
+const sharp_1 = __importDefault(require("sharp"));
 exports.relayIds = [
     'wss://relay.current.fyi',
     'wss://nostr1.current.fyi',
@@ -293,4 +294,57 @@ function getResults(results) {
     return data;
 }
 exports.getResults = getResults;
+function getBase64ImageFromURL(url) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (url === null)
+                return null;
+            const response = yield axios_1.default.get(url, {
+                responseType: 'arraybuffer'
+            });
+            const imageBuffer = Buffer.from(response.data);
+            console.log('image buffer');
+            const image = (0, sharp_1.default)(imageBuffer);
+            const metadata = yield image.metadata();
+            if (metadata.width > 1024 || metadata.height > 1024) {
+                console.log('inside iamge resize');
+                image.resize({
+                    width: 1024,
+                    height: 1024,
+                    fit: sharp_1.default.fit.inside,
+                    withoutEnlargement: true
+                });
+                const buffer = yield image.toBuffer();
+                return buffer.toString('base64');
+            }
+            return Buffer.from(response.data).toString('base64');
+        }
+        catch (error) {
+            console.log('Error at getBase64ImageFromURL', error);
+            return null;
+        }
+    });
+}
+exports.getBase64ImageFromURL = getBase64ImageFromURL;
+function saveBase64AsImageFile(filename, base64String) {
+    // Convert base64 string to a buffer
+    const buffer = Buffer.from(base64String, 'base64');
+    // Write buffer to a file
+    fs.writeFileSync(process.env.UPLOAD_PATH + filename, buffer);
+}
+exports.saveBase64AsImageFile = saveBase64AsImageFile;
+function doesStringAppearMoreThanFiveTimes(arr, target) {
+    let count = 0;
+    for (const str of arr) {
+        if (str === target) {
+            count++;
+        }
+        console.log('Count for: ', target + ': ' + count);
+        if (count > 1) {
+            return true;
+        }
+    }
+    return false;
+}
+exports.doesStringAppearMoreThanFiveTimes = doesStringAppearMoreThanFiveTimes;
 //# sourceMappingURL=helpers.js.map

@@ -1,4 +1,4 @@
-import { generateRandom9DigitNumber, getImageUrl, getResults } from "../helpers";
+import { generateRandom9DigitNumber, getBase64ImageFromURL, getImageUrl, getResults } from "../helpers";
 import sdxlText2Image from "./sdxlText2Image";
 import sdxlImage2Image from "./sdxlImage2Image";
 import { writeFileSync} from 'fs'
@@ -9,7 +9,6 @@ import { OpenAI} from 'langchain/llms/openai';
 import { PromptTemplate } from 'langchain/prompts'
 import { ModelIds, closestMultipleOf256, findBestMatch } from '../helpers';
 import { ImageToImageRequest } from "./image-to-image";
-import axios from 'axios';
 import { ZepClient } from "@getzep/zep-js";
 import { loadQAStuffChain } from "langchain/chains";
 import { Document } from "langchain/document";
@@ -197,45 +196,7 @@ export async function createGetImage2Image (options: Partial<ImageToImageRequest
 
 }
 
-async function getBase64ImageFromURL(url: string): Promise<string> {
-    try {
 
-        if (url === null) return null;
-
-        const response = await axios.get<ArrayBuffer>(url, {
-            responseType: 'arraybuffer'
-        });
-
-        const imageBuffer = Buffer.from(response.data);
-
-        console.log('image buffer')
-        const image = sharp(imageBuffer);
-
-        const metadata = await image.metadata();
-
-        if (metadata.width > 1024 || metadata.height > 1024) {
-            console.log('inside iamge resize')
-            image.resize({
-                width: 1024,
-                height: 1024,
-                fit: sharp.fit.inside,
-                withoutEnlargement: true
-            });
-
-            const buffer = await image.toBuffer();
-            return buffer.toString('base64');
-        }
-
-        return Buffer.from(response.data).toString('base64');
-
-    } catch (error) {
-
-        console.log('Error at getBase64ImageFromURL',error)
-        return null;
-
-    }
-
-}
 
 export async function createPromptUsingChatGPT (prompt: string): Promise<string> {
 

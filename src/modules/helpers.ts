@@ -7,6 +7,7 @@ import { createReadStream, writeFileSync, unlink } from 'fs'
 import FormData from 'form-data';
 import axios from "axios";
 import { IDocument } from "@getzep/zep-js";
+import sharp from "sharp";
 
 export const relayIds = [
   'wss://relay.current.fyi',
@@ -306,4 +307,68 @@ export function getResults(results: IDocument[]): string {
 }
 
 
+export async function getBase64ImageFromURL(url: string): Promise<string> {
+  try {
 
+      if (url === null) return null;
+
+      const response = await axios.get<ArrayBuffer>(url, {
+          responseType: 'arraybuffer'
+      });
+
+      const imageBuffer = Buffer.from(response.data);
+
+      console.log('image buffer')
+      const image = sharp(imageBuffer);
+
+      const metadata = await image.metadata();
+
+      if (metadata.width > 1024 || metadata.height > 1024) {
+          console.log('inside iamge resize')
+          image.resize({
+              width: 1024,
+              height: 1024,
+              fit: sharp.fit.inside,
+              withoutEnlargement: true
+          });
+
+          const buffer = await image.toBuffer();
+          return buffer.toString('base64');
+      }
+
+      return Buffer.from(response.data).toString('base64');
+
+  } catch (error) {
+
+      console.log('Error at getBase64ImageFromURL',error)
+      return null;
+
+  }
+
+}
+
+export function saveBase64AsImageFile(filename: string, base64String: string) {
+  // Convert base64 string to a buffer
+  const buffer = Buffer.from(base64String, 'base64');
+
+  // Write buffer to a file
+  fs.writeFileSync(process.env.UPLOAD_PATH +filename, buffer);
+}
+
+export function doesStringAppearMoreThanFiveTimes(arr: string[], target: string): boolean {
+  let count = 0;
+
+  for (const str of arr) {
+      if (str === target) {
+          count++;
+      }
+
+      console.log('Count for: ', target + ': ' + count);
+
+      if (count > 5) {
+          return true;
+      }
+  }
+
+  return false;
+}
