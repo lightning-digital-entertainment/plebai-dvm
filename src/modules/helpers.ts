@@ -372,3 +372,14 @@ export function doesStringAppearMoreThanFiveTimes(arr: string[], target: string)
 
   return false;
 }
+
+export function removeKeyword(inputString: string, keyword:string): { found: boolean; modifiedString: string } {
+  
+
+  if (inputString.includes(keyword)) {
+    const modifiedString = inputString.replace(keyword, '').trim();
+    return { found: true, modifiedString };
+  }
+
+  return { found: false, modifiedString: inputString };
+}

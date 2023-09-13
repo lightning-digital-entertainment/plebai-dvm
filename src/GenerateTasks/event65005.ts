@@ -1,9 +1,10 @@
 import { type Event as NostrEvent, getEventHash, getPublicKey, getSignature} from 'nostr-tools';
 import 'websocket-polyfill';
-import {doesStringAppearMoreThanFiveTimes, isValidURL, publishToRelays, relayId} from '../modules/helpers'
+import {doesStringAppearMoreThanFiveTimes, isValidURL, publishToRelays, relayId, removeKeyword} from '../modules/helpers'
 import { createGetImageWithPrompt } from '../modules/getimage/createImage';
 import { createNIP94Event, sizeOver1024 } from '../modules/nip94event/createEvent';
 import { createSinkinImageWithPrompt } from '../modules/sinkin/createimage';
+import { createTogetherAIImageWithPrompt } from '../modules/togetherai/createimage';
 
 
 const countPubs: string[]=[];
@@ -58,7 +59,24 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
 
             }
             else {
-                content = await createSinkinImageWithPrompt(prompt);
+
+                {
+                    const {found, modifiedString } = removeKeyword(prompt, '--photo')
+                    if (found) content = await createTogetherAIImageWithPrompt(modifiedString, 'SG161222/Realistic_Vision_V3.0_VAE');
+                    console.log('image created with --photo ')
+
+                }
+                
+
+                {
+                    const {found, modifiedString } = removeKeyword(prompt, '--midjourney')
+                    if (found) content = await createTogetherAIImageWithPrompt(modifiedString, 'prompthero/openjourney');
+                    console.log('image created with --midjourney ')
+
+                }
+
+    
+                if (content === '') content = await createSinkinImageWithPrompt(prompt);
             }
 
 

@@ -340,7 +340,7 @@ function doesStringAppearMoreThanFiveTimes(arr, target) {
             count++;
         }
         console.log('Count for: ', target + ': ' + count);
-        if (count > 1) {
+        if (count > 5) {
             return true;
         }
     }
