@@ -60,22 +60,14 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
             }
             else {
 
-                {
-                    const {found, modifiedString } = removeKeyword(prompt, '--photo')
-                    if (found) content = await createTogetherAIImageWithPrompt(modifiedString, 'SG161222/Realistic_Vision_V3.0_VAE');
-                    console.log('image created with --photo ')
 
+                const {keyword, modifiedString } = removeKeyword(prompt)
+                if (keyword) {
+                    if (keyword === '/photo') content = await createTogetherAIImageWithPrompt(modifiedString, 'SG161222/Realistic_Vision_V3.0_VAE');
+                    if (keyword === '/midjourney') content = await createTogetherAIImageWithPrompt(modifiedString, 'prompthero/openjourney');
+                    console.log('image created with ' + keyword);
                 }
                 
-
-                {
-                    const {found, modifiedString } = removeKeyword(prompt, '--midjourney')
-                    if (found) content = await createTogetherAIImageWithPrompt(modifiedString, 'prompthero/openjourney');
-                    console.log('image created with --midjourney ')
-
-                }
-
-    
                 if (content === '') content = await createSinkinImageWithPrompt(prompt);
             }
 
