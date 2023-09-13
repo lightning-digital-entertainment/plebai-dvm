@@ -30,8 +30,8 @@ export async function createTogetherAIImageWithPrompt(prompt:string, model:strin
             model,
             prompt,
             request_type:"image-model-inference",
-            width:1024,
-            height:1024,
+            width:512,
+            height:512,
             steps: 50,
             update_at: getFormattedTimestamp(),
             seed: generateRandom5DigitNumber(),
@@ -52,7 +52,7 @@ export async function createTogetherAIImageWithPrompt(prompt:string, model:strin
 
         } else {
 
-            return 'Error in generating image'
+            return ''
         }
 
 

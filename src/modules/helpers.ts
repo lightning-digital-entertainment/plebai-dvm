@@ -128,8 +128,8 @@ export function generateRandom9DigitNumber():number {
 }
 
 export function generateRandom5DigitNumber():number {
-  const min = 1000; // 4-digit number starting with 
-  const max = 10000; // 5-digit number ending with 
+  const min = 1000; // 4-digit number starting with
+  const max = 10000; // 5-digit number ending with
 
   const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
   return randomNumber;
@@ -381,13 +381,9 @@ export function doesStringAppearMoreThanFiveTimes(arr: string[], target: string)
   return false;
 }
 
-export function removeKeyword(inputString: string, keyword:string): { found: boolean; modifiedString: string } {
-  
-
-  if (inputString.includes(keyword)) {
-    const modifiedString = inputString.replace(keyword, '').trim();
-    return { found: true, modifiedString };
-  }
-
-  return { found: false, modifiedString: inputString };
+export function removeKeyword(inputString: string): { keyword: string; modifiedString: string } {
+  const keywords = ['/photo', '/midjourney'];
+  const keyword = keywords.find(keyword => inputString.includes(keyword));
+  const modifiedString = inputString.replace(keyword, '');
+  return {keyword, modifiedString};
 }

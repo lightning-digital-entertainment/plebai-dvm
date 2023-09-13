@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
+exports.removeKeyword = exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom5DigitNumber = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
@@ -141,6 +141,13 @@ function generateRandom9DigitNumber() {
     return randomNumber;
 }
 exports.generateRandom9DigitNumber = generateRandom9DigitNumber;
+function generateRandom5DigitNumber() {
+    const min = 1000; // 4-digit number starting with
+    const max = 10000; // 5-digit number ending with
+    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomNumber;
+}
+exports.generateRandom5DigitNumber = generateRandom5DigitNumber;
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -347,4 +354,11 @@ function doesStringAppearMoreThanFiveTimes(arr, target) {
     return false;
 }
 exports.doesStringAppearMoreThanFiveTimes = doesStringAppearMoreThanFiveTimes;
+function removeKeyword(inputString) {
+    const keywords = ['/photo', '/midjourney'];
+    const keyword = keywords.find(keyword => inputString.includes(keyword));
+    const modifiedString = inputString.replace(keyword, '');
+    return { keyword, modifiedString };
+}
+exports.removeKeyword = removeKeyword;
 //# sourceMappingURL=helpers.js.map

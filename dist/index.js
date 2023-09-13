@@ -37,7 +37,6 @@ require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
 const event65005_1 = require("./GenerateTasks/event65005");
 const createImage_1 = require("./modules/getimage/createImage");
-const createimage_1 = require("./modules/togetherai/createimage");
 // Loading environment variables from the .env file
 dotenv.config();
 // Defining an asynchronous function run()
@@ -79,6 +78,5 @@ function runTest() {
         console.log(content);
     });
 }
-// run().catch(console.log);
-(0, createimage_1.createTogetherAIImageWithPrompt)("RAW photo, a portrait photo of Katie Read in casual clothes, natural skin, 8k uhd, high quality, film grain, Fujifilm XT3");
+run().catch(console.log);
 //# sourceMappingURL=index.js.map
