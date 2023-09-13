@@ -127,6 +127,14 @@ export function generateRandom9DigitNumber():number {
   return randomNumber;
 }
 
+export function generateRandom5DigitNumber():number {
+  const min = 1000; // 4-digit number starting with 
+  const max = 10000; // 5-digit number ending with 
+
+  const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+  return randomNumber;
+}
+
 function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }

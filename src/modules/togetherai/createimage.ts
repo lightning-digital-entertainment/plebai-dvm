@@ -1,5 +1,5 @@
 
-import { generateRandom9DigitNumber, getBase64ImageFromURL, getImageUrl, getResults, saveBase64AsImageFile } from "../helpers";
+import { generateRandom5DigitNumber, generateRandom9DigitNumber, getBase64ImageFromURL, getImageUrl, getResults, saveBase64AsImageFile } from "../helpers";
 import { StructuredOutputParser } from "langchain/output_parsers";
 import { OpenAI} from 'langchain/llms/openai';
 import { PromptTemplate } from 'langchain/prompts'
@@ -34,7 +34,7 @@ export async function createTogetherAIImageWithPrompt(prompt:string, model:strin
             height:1024,
             steps: 50,
             update_at: getFormattedTimestamp(),
-            seed: 8305,
+            seed: generateRandom5DigitNumber(),
             n: 1,
             // image_base64: imageUrl
         };
