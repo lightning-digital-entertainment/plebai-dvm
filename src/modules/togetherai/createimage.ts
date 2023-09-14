@@ -22,7 +22,7 @@ const parser = StructuredOutputParser.fromNamesAndDescriptions({
 });
 
 
-export async function createTogetherAIImageWithPrompt(prompt:string, model:string): Promise<string> {
+export async function createTogetherAIImageWithPrompt(prompt:string, model:string, height:number, width:number): Promise<string> {
 
         const id = uuidv4();
         const outputFormat = "jpg";
@@ -30,8 +30,8 @@ export async function createTogetherAIImageWithPrompt(prompt:string, model:strin
             model,
             prompt,
             request_type:"image-model-inference",
-            width:512,
-            height:512,
+            width:width?width:512,
+            height:height?height:512,
             steps: 50,
             update_at: getFormattedTimestamp(),
             seed: generateRandom5DigitNumber(),
