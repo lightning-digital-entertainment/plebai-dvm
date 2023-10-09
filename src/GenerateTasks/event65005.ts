@@ -68,7 +68,7 @@ export async function genImageFromText(event65005:NostrEvent):Promise<boolean> {
                     console.log('image created with ' + keyword);
                 }
 
-                //if (content === '') content = await createSinkinImageWithPrompt(prompt);
+                // if (content === '') content = await createSinkinImageWithPrompt(prompt);
                 if (content === '') content = await createTogetherAIImageWithPrompt(prompt, 'stabilityai/stable-diffusion-xl-base-1.0', 1024,1024);
             }
 

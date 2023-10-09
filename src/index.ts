@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 import { genImageFromText } from './GenerateTasks/event65005';
 import { createGetImage, createGetImageWithPrompt } from './modules/getimage/createImage';
 import { createNIP94Event } from './modules/nip94event/createEvent';
+import { subscribeNostr } from './modules/SubscribeNostr';
 
 
 // Loading environment variables from the .env file
@@ -12,11 +13,11 @@ dotenv.config();
 
 
 
-
 // Defining an asynchronous function run()
-async function run() {
+async function run(): Promise<void>   {
 
 
+   subscribeNostr();
 
     // Logging the RELAY environment variable
     console.log('Starting to subscribe with', process.env.RELAY)
@@ -26,10 +27,14 @@ async function run() {
 
     const pool= new SimplePool();
 
+
+
     // Subscribing to a pool of relays
-    const sub = pool.sub(relays, [{ limit: 0, kinds: [65005]}]);
+    const sub = pool.sub(relays, [{ since: (Math.floor(Date.now() / 1000)), kinds: [65005]}]);
     // Removing all listeners from the 'event' event
-    sub.off('event', async event => { return})
+    sub.off('event', async event => {console.log('off: ', event); })
+
+
 
     // Adding a listener to the 'event' event
     sub.on('event', async event => {
@@ -54,14 +59,20 @@ async function runTest() {
 
   const prompt = ' change the hair color to pink'
 
+  // createUser();
+  // getUser();
+  // createListr();
   // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
-  const imageUrl = 'https://i.current.fyi/current/app/resizedn.png'
-  const content = await createGetImageWithPrompt(prompt, imageUrl);
+  // const imageUrl = 'https://i.current.fyi/current/app/resizedn.png'
+  // const content = await createGetImageWithPrompt(prompt, imageUrl);
 
   // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/d6cf2189-b3a3-4c1c-856e-a2989a2ec1cf.png', null);
 
-  console.log(content);
+  // console.log(content);
+
+  subscribeNostr();
 
 }
 
 run().catch(console.log);
+

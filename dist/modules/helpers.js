@@ -35,13 +35,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeKeyword = exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom5DigitNumber = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
+exports.getAgent = exports.getAgentKey = exports.getAgents = exports.createEvent = exports.decrypt = exports.encrypt = exports.removeKeyword = exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom5DigitNumber = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
 const form_data_1 = __importDefault(require("form-data"));
 const axios_1 = __importDefault(require("axios"));
 const sharp_1 = __importDefault(require("sharp"));
+const crypto = __importStar(require("crypto"));
 exports.relayIds = [
     'wss://relay.current.fyi',
     'wss://nostr1.current.fyi',
@@ -61,7 +62,10 @@ exports.relayIds = [
     'wss://nostr.oxtr.dev',
     'wss://relay.nostr.bg',
     'wss://no.str.cr',
-    'wss://relay.nostr.wirednet.jp'
+    'wss://relay.nostr.wirednet.jp',
+    'wss://purple.pages',
+    'wss://realy.nostr.band',
+    'wss://wc1.current.ninja'
 ];
 exports.ModelIds = [
     "stable-diffusion-xl-v1-0",
@@ -361,4 +365,109 @@ function removeKeyword(inputString) {
     return { keyword, modifiedString };
 }
 exports.removeKeyword = removeKeyword;
+function encrypt(text, key) {
+    const algorithm = 'aes-256-ctr';
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(algorithm, Buffer.from(key, 'hex'), iv);
+    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+    return {
+        iv: iv.toString('hex'),
+        content: encrypted.toString('hex'),
+        key
+    };
+}
+exports.encrypt = encrypt;
+function decrypt(data) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Retrieve the encrypted password and key from the database
+        const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(data.key, 'hex'), Buffer.from(data.iv, 'hex'));
+        const decrypted = Buffer.concat([decipher.update(Buffer.from(data.content, 'hex')), decipher.final()]);
+        return decrypted.toString();
+    });
+}
+exports.decrypt = decrypt;
+function createEvent(eventId, tags, content, privateKey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const event = {
+            kind: eventId,
+            pubkey: (0, nostr_tools_1.getPublicKey)(privateKey),
+            created_at: Math.floor(Date.now() / 1000),
+            tags,
+            content
+        };
+        event.id = (0, nostr_tools_1.getEventHash)(event);
+        event.sig = (0, nostr_tools_1.getSignature)(event, privateKey);
+        console.log(eventId + ' Event: ', event);
+        return event;
+    });
+}
+exports.createEvent = createEvent;
+function getAgents() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const getAgents = yield fetch(process.env.PLEBAI_AGENTS_LINK, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            return yield (getAgents === null || getAgents === void 0 ? void 0 : getAgents.json());
+        }
+        catch (error) {
+            console.log('Error at catch: ', error);
+            return null;
+        }
+    });
+}
+exports.getAgents = getAgents;
+function getAgentKey(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = JSON.stringify({ id });
+            const postUser = yield fetch(process.env.PLEBAI_AGENT_LINK + '/v1/data/agent', {
+                method: 'POST',
+                body,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (!postUser)
+                return null;
+            const postUserJson = yield postUser.json();
+            const encryptedKey = {
+                iv: postUserJson.SystemPurposes[id].key_iv,
+                content: postUserJson.SystemPurposes[id].key_content,
+                key: process.env.UNLOCK_KEY
+            };
+            return yield decrypt(encryptedKey);
+        }
+        catch (error) {
+            console.log('Error at catch: ', error);
+            return null;
+        }
+    });
+}
+exports.getAgentKey = getAgentKey;
+function getAgent(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const body = JSON.stringify({ id });
+            const postUser = yield fetch(process.env.PLEBAI_AGENT_LINK + '/v1/data/agent', {
+                method: 'POST',
+                body,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            if (!postUser)
+                return null;
+            return yield postUser.json();
+        }
+        catch (error) {
+            console.log('Error at catch: ', error);
+            return null;
+        }
+    });
+}
+exports.getAgent = getAgent;
 //# sourceMappingURL=helpers.js.map

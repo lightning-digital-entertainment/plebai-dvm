@@ -2,12 +2,13 @@ import { LightningAddress } from "alby-tools";
 import { InvoiceResponse } from "../typings/invoice";
 import { sha256 } from "js-sha256";
 import * as fs from 'fs';
-import { type Event as NostrEvent, relayInit } from 'nostr-tools';
+import { type Event as NostrEvent, relayInit, getPublicKey, getEventHash, getSignature } from 'nostr-tools';
 import { createReadStream, writeFileSync, unlink } from 'fs'
 import FormData from 'form-data';
 import axios from "axios";
 import { IDocument } from "@getzep/zep-js";
 import sharp from "sharp";
+import * as crypto from 'crypto';
 
 export const relayIds = [
   'wss://relay.current.fyi',
@@ -28,7 +29,10 @@ export const relayIds = [
   'wss://nostr.oxtr.dev',
   'wss://relay.nostr.bg',
   'wss://no.str.cr',
-  'wss://relay.nostr.wirednet.jp'
+  'wss://relay.nostr.wirednet.jp',
+  'wss://purple.pages',
+  'wss://realy.nostr.band',
+  'wss://wc1.current.ninja'
 
 ];
 
@@ -387,3 +391,178 @@ export function removeKeyword(inputString: string): { keyword: string; modifiedS
   const modifiedString = inputString.replace(keyword, '');
   return {keyword, modifiedString};
 }
+
+
+export function encrypt(text: string, key:string): EncryptedData {
+  const algorithm = 'aes-256-ctr';
+  const iv = crypto.randomBytes(16);
+
+  const cipher = crypto.createCipheriv(algorithm, Buffer.from(key, 'hex'), iv);
+
+  const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+
+  return {
+    iv: iv.toString('hex'),
+    content: encrypted.toString('hex'),
+    key
+  };
+}
+
+export async function decrypt(data:EncryptedData): Promise<string> {
+  // Retrieve the encrypted password and key from the database
+
+  const decipher = crypto.createDecipheriv(
+    'aes-256-ctr',
+    Buffer.from(data.key, 'hex'),
+    Buffer.from(data.iv, 'hex')
+  );
+
+  const decrypted = Buffer.concat([decipher.update(Buffer.from(data.content, 'hex')), decipher.final()]);
+
+  return decrypted.toString();
+}
+
+export interface EncryptedData {
+  iv: string;
+  content: string;
+  key: string;
+}
+
+export type SystemPurposeData = {
+  id: string,
+  title: string;
+  description: string
+  systemMessage: string;
+  symbol: string;
+  examples?: string[];
+  highlighted?: boolean;
+  placeholder: string;
+  chatLLM: string;
+  llmRouter: string;
+  convoCount: number;
+  temperature:number,
+  satsPay: number;
+  maxToken: number;
+  paid: boolean;
+  private: boolean;
+  status: string;
+  createdBy: string;
+  updatedBy: string;
+  chatruns: number,
+  key_iv:string,
+  key_content:string,
+  nip05:string
+
+}
+
+export async function createEvent(eventId: number, tags:string[][], content:string, privateKey: string):Promise<NostrEvent>{
+
+  const event: NostrEvent = {
+      kind: eventId,
+      pubkey: getPublicKey(privateKey),
+      created_at: Math.floor(Date.now() / 1000),
+      tags,
+      content
+  } as any;
+
+
+  event.id = getEventHash(event);
+  event.sig = getSignature(event, privateKey);
+
+  console.log(eventId + ' Event: ', event);
+
+  return event;
+
+}
+
+export async function getAgents():Promise<SystemPurposeData[]>{
+
+    try {
+
+      const getAgents = await fetch(process.env.PLEBAI_AGENTS_LINK, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+    })
+
+    return await getAgents?.json();
+
+    } catch (error) {
+
+      console.log('Error at catch: ', error)
+      return null;
+
+    }
+
+
+
+
+}
+
+export async function getAgentKey(id:string):Promise<string>{
+
+  try {
+
+    const body = JSON.stringify({id})
+
+    const postUser = await fetch(process.env.PLEBAI_AGENT_LINK + '/v1/data/agent', {
+                    method: 'POST',
+                    body,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+    })
+
+    if (!postUser) return null;
+
+    const postUserJson: any = await postUser.json()
+
+
+
+    const encryptedKey: EncryptedData = {
+        iv: postUserJson.SystemPurposes[id].key_iv,
+        content: postUserJson.SystemPurposes[id].key_content,
+        key: process.env.UNLOCK_KEY
+
+    }
+
+
+  return await decrypt(encryptedKey);
+
+  } catch (error) {
+
+    console.log('Error at catch: ', error)
+    return null;
+
+  }
+
+}
+
+export async function getAgent(id:string):Promise<string>{
+
+  try {
+
+    const body = JSON.stringify({id})
+
+    const postUser = await fetch(process.env.PLEBAI_AGENT_LINK + '/v1/data/agent', {
+                    method: 'POST',
+                    body,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+    })
+
+    if (!postUser) return null;
+
+    return await postUser.json()
+
+  } catch (error) {
+
+    console.log('Error at catch: ', error)
+    return null;
+
+  }
+
+}
+
