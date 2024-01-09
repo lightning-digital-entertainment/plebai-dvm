@@ -16,8 +16,6 @@ export const relayIds = [
   'wss://nostr-pub.wellorder.net',
   'wss://relay.damus.io',
   'wss://nostr-relay.wlvs.space',
-  'wss://nostr.zebedee.cloud',
-  'wss://student.chadpolytechnic.com',
   'wss://global.relay.red',
   'wss://nos.lol',
   'wss://relay.primal.net',
@@ -32,7 +30,10 @@ export const relayIds = [
   'wss://relay.nostr.wirednet.jp',
   'wss://purple.pages',
   'wss://realy.nostr.band',
-  'wss://wc1.current.ninja'
+  'wss://wc1.current.ninja',
+  'wss://pablof7z.nostr1.com',
+  'wss://relay.f7z.io',
+  'wss://relay.conxole.io'
 
 ];
 
@@ -73,6 +74,17 @@ export const ModelIds = [
 
 export const relayId = [process.env.RELAY];
 
+export type SubscriptionData = {
+  request_date: string;
+  subscriber: {
+      entitlements: Record<string, any>;
+      subscriptions: Record<string, {
+          expires_date: string;
+          is_sandbox: boolean;
+          ownership_type: string;
+      }>;
+  };
+};
 
 
 
@@ -460,7 +472,7 @@ export async function createEvent(eventId: number, tags:string[][], content:stri
   const event: NostrEvent = {
       kind: eventId,
       pubkey: getPublicKey(privateKey),
-      created_at: Math.floor(Date.now() / 1000),
+      created_at: Math.floor(Date.now() / 1000)+1,
       tags,
       content
   } as any;
@@ -472,6 +484,25 @@ export async function createEvent(eventId: number, tags:string[][], content:stri
   console.log(eventId + ' Event: ', event);
 
   return event;
+
+}
+
+export async function publishProcessingEvent(pubkey: string, eventId:string, privateKey: string) {
+
+  const tags2:string[][] = [];
+  tags2.push(['e', eventId]);
+  tags2.push(['p', pubkey]);
+  tags2.push(['status','processing', "Processing started"]);
+
+  const event7000 = await createEvent(7000,tags2, 'Payment received. Starti ng to generate...', privateKey);
+
+  try {
+
+    publishRelays(event7000);
+
+  } catch (error) {
+        console.log(error);
+  }
 
 }
 
@@ -563,6 +594,53 @@ export async function getAgent(id:string):Promise<string>{
     return null;
 
   }
+
+}
+
+export function npubfromstring (input:string) {
+
+  const regex = /nostr:(npub[\w]+)/;
+  const match = input.match(regex);
+  if (match && match[1]) return match[1];
+  return null;
+
+}
+
+export async function isSubscriptionValid(pubkey:string): Promise<boolean> {
+
+  try {
+
+    const getSubscription = await fetch(process.env.REVCAT_API_URL + '/subscribers/' + pubkey, {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + process.env.REVCAT_API_KEY
+
+      },
+    })
+
+    const getSubscriptionData: SubscriptionData = await getSubscription.json();
+
+    console.log(getSubscriptionData);
+
+    const today = new Date();
+    const subscription = getSubscriptionData.subscriber.subscriptions.amped1mon;
+
+    if (!subscription) return false;
+
+    const expiresDate = new Date(subscription.expires_date);
+
+    return expiresDate > today &&
+           !subscription.is_sandbox &&
+           subscription.ownership_type.toUpperCase() === 'PURCHASED';
+
+  } catch (error) {
+
+    console.log(error);
+    return false;
+
+  }
+
 
 }
 

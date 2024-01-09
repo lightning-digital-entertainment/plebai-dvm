@@ -25,9 +25,9 @@ export async function createUser() {
      aiagents.filter(async aiagent => {
 
 
-       // if (!aiagent.private && aiagent.status === 'active' && aiagent.nip05 === null) {
+       if (!aiagent.private && aiagent.status === 'active' && aiagent.nip05 === null) {
 
-        if (aiagent.id === 'SatsForDev') {
+       // if (aiagent.id === 'fc43eefd55d8d25a3ce12f4d0d9405b61695737482') {
 
             console.log('Agent is: ', aiagent);
             const username = aiagent.title.replace(/\s/g, "").replace("-", "_").toLowerCase()+ "@plebai.com";
@@ -35,7 +35,7 @@ export async function createUser() {
             console.log(privateKey);
             console.log('nip: ',  username)
             const pubkey = getPublicKey(privateKey);
-            const password = secp256k1.utils.bytesToHex(
+            const password = secp256k1.utils .bytesToHex(
                 sha256(utf8Encoder.encode(privateKey)),
             );
 
@@ -103,6 +103,8 @@ export async function createUser() {
 
             const event0 = await createEvent(0,tags2, JSON.stringify(content), privateKey);
 
+            await sleep(10000);
+
             console.log(event0);
             publishRelays(event0);
             console.log('Execution complete for: ' + aiagent.title)
@@ -111,6 +113,8 @@ export async function createUser() {
 
             console.log(event1);
             publishRelays(event1);
+
+
 
         }
 
@@ -147,3 +151,8 @@ async function createEvent(eventId: number, tags:string[][], content:string, pri
 
 
 
+function sleep(ms: number) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }

@@ -37,8 +37,17 @@ require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
 const event65005_1 = require("./GenerateTasks/event65005");
 const SubscribeNostr_1 = require("./modules/SubscribeNostr");
+const GetNostrUser_1 = require("./modules/GetNostrUser");
 // Loading environment variables from the .env file
 dotenv.config();
+process.on('uncaughtException', function (err) {
+    console.error(err);
+    console.log('Node NOT Exiting...');
+});
+process.on('unhandledRejection', function (err) {
+    console.error(err);
+    console.log('Node NOT Exiting...');
+});
 // Defining an asynchronous function run()
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -72,7 +81,12 @@ function runTest() {
     return __awaiter(this, void 0, void 0, function* () {
         // const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
         const prompt = ' change the hair color to pink';
+        // const result = await isSubscriptionValid('c7063ccd7e9adc0ddd4b77c6bfabffc8399b41e24de3a668a6ab62ede2c8aabd');
+        // console.log(result);
         // createUser();
+        (0, GetNostrUser_1.getUser)();
+        // subscribeNostr();
+        // updateNIP05();
         // getUser();
         // createListr();
         // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
@@ -80,8 +94,8 @@ function runTest() {
         // const content = await createGetImageWithPrompt(prompt, imageUrl);
         // const content = await createNIP94Event('https://i.current.fyi/current/plebai/genimg/d6cf2189-b3a3-4c1c-856e-a2989a2ec1cf.png', null);
         // console.log(content);
-        (0, SubscribeNostr_1.subscribeNostr)();
+        // subscribeNostr();
     });
 }
-run().catch(console.log);
+runTest().catch(console.log);
 //# sourceMappingURL=index.js.map

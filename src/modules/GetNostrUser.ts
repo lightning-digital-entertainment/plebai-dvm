@@ -11,10 +11,13 @@ export const usernameRegex = /^[a-z0-9 ]{4,32}$/i;
 
 export async function getUser() {
 
+    console.log('Starting...');
+
+    const id = "7f85a82b8cd1f4b98f4b5882862007741702513856";
 
     const body = JSON.stringify({
 
-        "id": "DocGPT",
+        id,
 
     })
 
@@ -32,8 +35,8 @@ export async function getUser() {
     console.log('JSON', postUserJson);
 
     const encryptedKey: EncryptedData = {
-        iv: postUserJson.SystemPurposes.DocGPT.key_iv,
-        content: postUserJson.SystemPurposes.DocGPT.key_content,
+        iv: postUserJson.SystemPurposes[id].key_iv,
+        content: postUserJson.SystemPurposes[id].key_content,
         key: process.env.UNLOCK_KEY
 
     }
@@ -57,7 +60,7 @@ export async function getUser() {
     const event1 = await createEvent(1,tags, JSON.stringify(content), decryptedKey);
 
     console.log(event1);
-    publishRelays(event1);
+    // publishRelays(event1);
     // console.log('Execution complete for: ' + aiagent.title)
 
 

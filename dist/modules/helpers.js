@@ -35,7 +35,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAgent = exports.getAgentKey = exports.getAgents = exports.createEvent = exports.decrypt = exports.encrypt = exports.removeKeyword = exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom5DigitNumber = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
+exports.isSubscriptionValid = exports.npubfromstring = exports.getAgent = exports.getAgentKey = exports.getAgents = exports.publishProcessingEvent = exports.createEvent = exports.decrypt = exports.encrypt = exports.removeKeyword = exports.doesStringAppearMoreThanFiveTimes = exports.saveBase64AsImageFile = exports.getBase64ImageFromURL = exports.getResults = exports.isValidURL = exports.closestMultipleOf256 = exports.findBestMatch = exports.getImageUrl = exports.publishRelay = exports.publishRelays = exports.publishToRelays = exports.readRandomRow = exports.generateRandom5DigitNumber = exports.generateRandom9DigitNumber = exports.generateRandom10DigitNumber = exports.requestApiAccess = exports.sendHeaders = exports.relayId = exports.ModelIds = exports.relayIds = void 0;
 const fs = __importStar(require("fs"));
 const nostr_tools_1 = require("nostr-tools");
 const fs_1 = require("fs");
@@ -49,8 +49,6 @@ exports.relayIds = [
     'wss://nostr-pub.wellorder.net',
     'wss://relay.damus.io',
     'wss://nostr-relay.wlvs.space',
-    'wss://nostr.zebedee.cloud',
-    'wss://student.chadpolytechnic.com',
     'wss://global.relay.red',
     'wss://nos.lol',
     'wss://relay.primal.net',
@@ -65,7 +63,10 @@ exports.relayIds = [
     'wss://relay.nostr.wirednet.jp',
     'wss://purple.pages',
     'wss://realy.nostr.band',
-    'wss://wc1.current.ninja'
+    'wss://wc1.current.ninja',
+    'wss://pablof7z.nostr1.com',
+    'wss://relay.f7z.io',
+    'wss://relay.conxole.io'
 ];
 exports.ModelIds = [
     "stable-diffusion-xl-v1-0",
@@ -391,7 +392,7 @@ function createEvent(eventId, tags, content, privateKey) {
         const event = {
             kind: eventId,
             pubkey: (0, nostr_tools_1.getPublicKey)(privateKey),
-            created_at: Math.floor(Date.now() / 1000),
+            created_at: Math.floor(Date.now() / 1000) + 1,
             tags,
             content
         };
@@ -402,6 +403,22 @@ function createEvent(eventId, tags, content, privateKey) {
     });
 }
 exports.createEvent = createEvent;
+function publishProcessingEvent(pubkey, eventId, privateKey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const tags2 = [];
+        tags2.push(['e', eventId]);
+        tags2.push(['p', pubkey]);
+        tags2.push(['status', 'processing', "Processing started"]);
+        const event7000 = yield createEvent(7000, tags2, 'Payment received. Starting to generate...', privateKey);
+        try {
+            publishRelays(event7000);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    });
+}
+exports.publishProcessingEvent = publishProcessingEvent;
 function getAgents() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -470,4 +487,40 @@ function getAgent(id) {
     });
 }
 exports.getAgent = getAgent;
+function npubfromstring(input) {
+    const regex = /nostr:(npub[\w]+)/;
+    const match = input.match(regex);
+    if (match && match[1])
+        return match[1];
+    return null;
+}
+exports.npubfromstring = npubfromstring;
+function isSubscriptionValid(pubkey) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const getSubscription = yield fetch(process.env.REVCAT_API_URL + '/subscribers/' + pubkey, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + process.env.REVCAT_API_KEY
+                },
+            });
+            const getSubscriptionData = yield getSubscription.json();
+            console.log(getSubscriptionData);
+            const today = new Date();
+            const subscription = getSubscriptionData.subscriber.subscriptions.amped1mon;
+            if (!subscription)
+                return false;
+            const expiresDate = new Date(subscription.expires_date);
+            return expiresDate > today &&
+                !subscription.is_sandbox &&
+                subscription.ownership_type.toUpperCase() === 'PURCHASED';
+        }
+        catch (error) {
+            console.log(error);
+            return false;
+        }
+    });
+}
+exports.isSubscriptionValid = isSubscriptionValid;
 //# sourceMappingURL=helpers.js.map

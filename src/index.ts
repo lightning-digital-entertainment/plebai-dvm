@@ -6,11 +6,24 @@ import { genImageFromText } from './GenerateTasks/event65005';
 import { createGetImage, createGetImageWithPrompt } from './modules/getimage/createImage';
 import { createNIP94Event } from './modules/nip94event/createEvent';
 import { subscribeNostr } from './modules/SubscribeNostr';
+import { createUser } from './modules/CreateNostrUser';
+import { isSubscriptionValid } from './modules/helpers';
+import { updateNIP05 } from './modules/UpdateNip05';
+import { getUser } from './modules/GetNostrUser';
 
 
 // Loading environment variables from the .env file
 dotenv.config();
 
+process.on('uncaughtException', function (err) {
+  console.error(err);
+  console.log('Node NOT Exiting...');
+});
+
+process.on('unhandledRejection', function (err) {
+  console.error(err);
+  console.log('Node NOT Exiting...');
+});
 
 
 // Defining an asynchronous function run()
@@ -59,7 +72,13 @@ async function runTest() {
 
   const prompt = ' change the hair color to pink'
 
+  // const result = await isSubscriptionValid('c7063ccd7e9adc0ddd4b77c6bfabffc8399b41e24de3a668a6ab62ede2c8aabd');
+
+  // console.log(result);
   // createUser();
+  getUser();
+  // subscribeNostr();
+  // updateNIP05();
   // getUser();
   // createListr();
   // const prompt = 'High resolution photography interior design, dreamy sunken living room conversation pit, wooden floor, small windows opening onto the garden, bauhaus furniture and decoration, high ceiling, beige blue salmon pastel palette, interior design magazine, cozy atmosphere; 8k, intricate detail, photorealistic, realistic light, wide angle, kinkfolk photography, A+D architecture';
@@ -70,9 +89,12 @@ async function runTest() {
 
   // console.log(content);
 
-  subscribeNostr();
+  // subscribeNostr();
 
 }
 
-run().catch(console.log);
+runTest().catch(console.log);
+
+
+
 
