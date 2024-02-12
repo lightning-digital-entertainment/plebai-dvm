@@ -108,7 +108,7 @@ export async function subscribeNostr(): Promise<void>   {
 
                 let pubEvent:any;
 
-                if (event.kind === 5100) {
+                if (event.kind === 5100 || event.kind === 5101) {
                     tags.push(['e', event.id]);
                     tags.push(['alt', 'NIP90 DVM AI task text-to-image requires payment of min 50 Sats. ']);
                     tags.push(['status', 'payment-required']);
@@ -176,6 +176,12 @@ export async function subscribeNostr(): Promise<void>   {
             } else if (event.kind === 5100) {
 
                 ptag = '04f74530a6ede6b24731b976b8e78fb449ea61f40ff10e3d869a3030c4edc91f';
+            }  else if (event.kind === 5101) {
+
+                ptag = '909ae069f959a1091fe3a7d914723731e97bd5ee72e0e13c4720d04a1bf66dd2';
+            } else if (event.kind === 5050) {
+
+                ptag = '4aa7239b5396360980e0759b1a149490d1e4a1e3a441b69cd7f1b2925f8a5e77';
             }
             else {
                 ptag = event.tags.find(([k]) => k === 'p')?.[1] || '';
@@ -215,9 +221,7 @@ export async function subscribeNostr(): Promise<void>   {
             event.tags = sourceEvent.tags;
             event.sig = sourceEvent.sig;
             event.created_at = sourceEvent.created_at;
-            if (sourceEvent.kind === 1)event.kind = 1;
-            if (sourceEvent.kind === 4)event.kind = 4;
-            if (sourceEvent.kind === 5100)event.kind = 5100;
+            event.kind = sourceEvent.kind;
             count=1;
 
             console.log('sourceEvent from 9735: ', event);
@@ -263,9 +267,8 @@ export async function subscribeNostr(): Promise<void>   {
 
                     if (event.kind === 4) {
                         contentString = await nip04.decrypt(getPrivateKeyByPublicKey(ptag), (eventConversation.pubkey === ptag)?event.pubkey:eventConversation.pubkey, eventConversation.content);
-                    } else if(event.kind === 5100) {
+                    } else if (String(event.kind).startsWith('5')) {
                         contentString = eventConversation.tags.find(([k]) => k === 'i')?.[1] || '';
-                        console.log('Connect String for 5100: ', contentString);
                     } else {
                         contentString = eventConversation.content.replace(/nostr:(npub1[\w]+)/g, '');
                     }
@@ -324,15 +327,15 @@ export async function subscribeNostr(): Promise<void>   {
             pubEvent = await createEvent(1,tags, response, (getPrivateKeyByPublicKey(ptag)));
         }
 
-        if (event.kind === 5100) {
+        if (String(event.kind).startsWith('5')) {
             tags.push(['e', event.id]);
             tags.push(['p', event.pubkey]);
-            tags.push(['alt', 'This is the result of a NIP90 DVM AI task with kind 5100.']);
+            tags.push(['alt', 'This is the result of a NIP90 DVM AI task with kind ' + event.kind]);
             tags.push(['status', 'success']);
             tags.push(['i', event.tags.find(([k]) => k === 'i')?.[1] || '' ])
             tags.push(['request', JSON.stringify(event)])
 
-            pubEvent = await createEvent(6100,tags, response, (getPrivateKeyByPublicKey(ptag)));
+            pubEvent = await createEvent(event.kind+1000,tags, response, (getPrivateKeyByPublicKey(ptag)));
 
         }
 
@@ -417,7 +420,7 @@ export async function subscribeNostr(): Promise<void>   {
 
     }
 
-    const subdvm = pool.sub(relays, [{ since: (Math.floor(Date.now() / 1000)), limit:1, kinds: [5100]}]);
+    const subdvm = pool.sub(relays, [{ since: (Math.floor(Date.now() / 1000)), limit:1, kinds: [5100, 5101, 5050]}]);
 
     subdvm.on('event', async event => {
         console.log(event);

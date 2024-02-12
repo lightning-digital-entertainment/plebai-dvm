@@ -10,6 +10,8 @@ import { createUser } from './modules/CreateNostrUser';
 import { isSubscriptionValid } from './modules/helpers';
 import { updateNIP05 } from './modules/UpdateNip05';
 import { getUser } from './modules/GetNostrUser';
+import { createNip89 } from './modules/Createnip89';
+import { createKind0 } from './modules/CreateKind0';
 
 
 // Loading environment variables from the .env file
@@ -72,11 +74,12 @@ async function runTest() {
 
   const prompt = ' change the hair color to pink'
 
-  // const result = await isSubscriptionValid('c7063ccd7e9adc0ddd4b77c6bfabffc8399b41e24de3a668a6ab62ede2c8aabd');
 
-  // console.log(result);
+  console.log(prompt);
   // createUser();
-  getUser();
+  createKind0('7f85a82b8cd1f4b98f4b5882862007741705940560');
+  // getUser();
+  // createNip89("7f85a82b8cd1f4b98f4b5882862007741696018380");
   // subscribeNostr();
   // updateNIP05();
   // getUser();

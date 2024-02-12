@@ -13,7 +13,7 @@ export async function getUser() {
 
     console.log('Starting...');
 
-    const id = "7f85a82b8cd1f4b98f4b5882862007741702513856";
+    const id = "GenImage";
 
     const body = JSON.stringify({
 

@@ -37,7 +37,7 @@ require("websocket-polyfill");
 const dotenv = __importStar(require("dotenv"));
 const event65005_1 = require("./GenerateTasks/event65005");
 const SubscribeNostr_1 = require("./modules/SubscribeNostr");
-const GetNostrUser_1 = require("./modules/GetNostrUser");
+const CreateKind0_1 = require("./modules/CreateKind0");
 // Loading environment variables from the .env file
 dotenv.config();
 process.on('uncaughtException', function (err) {
@@ -81,10 +81,11 @@ function runTest() {
     return __awaiter(this, void 0, void 0, function* () {
         // const prompt = 'photo of top model 18 y.o, cyberpunk art, gothic art, extremely high quality RAW photograph, detailed background, intricate, Exquisite details and textures, highly detailed, ultra detailed photograph, warm lighting, 4k, sharp focus, high resolution, detailed skin, detailed eyes, 8k uhd, dslr, high quality, film grain, ';
         const prompt = ' change the hair color to pink';
-        // const result = await isSubscriptionValid('c7063ccd7e9adc0ddd4b77c6bfabffc8399b41e24de3a668a6ab62ede2c8aabd');
-        // console.log(result);
+        console.log(prompt);
         // createUser();
-        (0, GetNostrUser_1.getUser)();
+        (0, CreateKind0_1.createKind0)('7f85a82b8cd1f4b98f4b5882862007741705940560');
+        // getUser();
+        // createNip89("7f85a82b8cd1f4b98f4b5882862007741696018380");
         // subscribeNostr();
         // updateNIP05();
         // getUser();

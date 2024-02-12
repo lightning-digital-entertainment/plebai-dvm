@@ -409,7 +409,7 @@ function publishProcessingEvent(pubkey, eventId, privateKey) {
         tags2.push(['e', eventId]);
         tags2.push(['p', pubkey]);
         tags2.push(['status', 'processing', "Processing started"]);
-        const event7000 = yield createEvent(7000, tags2, 'Payment received. Starting to generate...', privateKey);
+        const event7000 = yield createEvent(7000, tags2, 'Payment received. Starti ng to generate...', privateKey);
         try {
             publishRelays(event7000);
         }
